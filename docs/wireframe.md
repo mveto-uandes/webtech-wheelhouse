@@ -21,3 +21,7 @@ Where the mechanic writes the diagnosis, adds line items from the price list, se
 Shows line items and total, records the customer's approve/decline.
 
 ![quote approval](image/wireframe/Web-Technologies-9.jpg)
+
+## Navigation graph
+
+![navigation graph](image/wireframe/Web-Technologies-10.jpg)
