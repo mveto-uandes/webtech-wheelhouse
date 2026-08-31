@@ -1,18 +1,24 @@
-# webtech-wheelhouse
+# README
 
-Wheelhouse is a neighbourhood bicycle repair shop. This repo is the spec for a system to manage it: customers drop off bikes, mechanics diagnose and repair them, staff track status and pricing, and the public price list is visible on the website.
+This README would normally document whatever steps are necessary to get the
+application up and running.
 
-Who uses it:
+Things you may want to cover:
 
-- Customers - drop off bikes, approve/decline quotes, check if their bike is ready.
-- Counter staff - log repairs, talk to customers, record payments.
-- Mechanics - diagnose bikes, write repair notes, update status.
+* Ruby version
 
-This lab is spec-only, no code yet. From Lab 4 onward the Rails app gets built on top of this.
+* System dependencies
 
-## Docs
+* Configuration
 
-- [User stories](docs/user-stories.md)
-- [Domain model](docs/domain-model.md)
-- [Decisions](docs/decisions.md)
-- [Wireframes](docs/wireframes.md)
+* Database creation
+
+* Database initialization
+
+* How to run the test suite
+
+* Services (job queues, cache servers, search engines, etc.)
+
+* Deployment instructions
+
+* ...
