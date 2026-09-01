@@ -1,0 +1,69 @@
+<h1>Bike: <%= @bike[:type] %> — <%= @bike[:make] %> <%= @bike[:model] %> (<%= @bike[:serial] %>)</h1>
+<p class="text-muted">Mockup only — mechanic view.</p>
+
+<div class="row">
+  <div class="col-lg-8 col-12">
+    <div class="mb-3" style="max-width: 250px;">
+      <label class="form-label">Status</label>
+      <select class="form-select" disabled>
+        <option>60% complete</option>
+      </select>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label">Notes</label>
+      <textarea class="form-control" rows="3" disabled>Waiting on replacement wheel.</textarea>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h2 class="mb-0">Items used in repair</h2>
+      <button class="btn btn-sm btn-outline-primary" disabled>+ New</button>
+    </div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>ID</th>
+          <th>SKU</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @items.each do |item| %>
+          <tr>
+            <td><%= item[:name] %></td>
+            <td><%= item[:id] %></td>
+            <td><%= item[:sku] %></td>
+            <td>$<%= "%.2f" % item[:price] %></td>
+            <td><%= item[:quantity] %></td>
+            <td>$<%= "%.2f" % item[:total] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4"></td>
+          <td><strong><%= @items.sum { |i| i[:quantity] } %> items</strong></td>
+          <td><strong>$<%= "%.2f" % @items.sum { |i| i[:total] } %></strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="col-lg-4 col-12">
+    <div class="border rounded p-4 text-center text-muted">
+      <div>[bike photo]</div>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex justify-content-end gap-2 mt-3">
+  <button class="btn btn-outline-secondary" disabled>Discard changes</button>
+  <button class="btn btn-primary" disabled>Save status</button>
+</div>
+
+<p class="mt-4">
+  <%= link_to "← Back to repair board", mockup_repair_board_path %>
+</p>

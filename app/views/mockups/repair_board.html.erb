@@ -1,0 +1,58 @@
+<h1>Bikes in the Shop</h1>
+<p class="text-muted">Mockup only — staff/counter + mechanic view.</p>
+
+<div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+  <div class="d-flex align-items-center gap-2">
+    <span>Sort by:</span>
+    <select class="form-select form-select-sm" disabled style="width: auto;">
+      <option>A–Z</option>
+    </select>
+  </div>
+  <input type="search" class="form-control form-control-sm" placeholder="Search" disabled style="max-width: 200px;">
+  <div class="d-flex align-items-center gap-2">
+    <span>Show:</span>
+    <div class="form-check form-check-inline mb-0">
+      <input class="form-check-input" type="checkbox" checked disabled>
+      <label class="form-check-label">All</label>
+    </div>
+    <div class="form-check form-check-inline mb-0">
+      <input class="form-check-input" type="checkbox" disabled>
+      <label class="form-check-label">In shop</label>
+    </div>
+    <div class="form-check form-check-inline mb-0">
+      <input class="form-check-input" type="checkbox" disabled>
+      <label class="form-check-label">Overdue</label>
+    </div>
+    <div class="form-check form-check-inline mb-0">
+      <input class="form-check-input" type="checkbox" disabled>
+      <label class="form-check-label">Delivered</label>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <% @bikes.each do |bike| %>
+    <div class="col-lg-4 col-md-6 col-12">
+      <%= link_to mockup_repair_detail_path, class: "card text-decoration-none text-reset h-100" do %>
+        <div class="card-body">
+          <p class="text-muted mb-2">[bike photo]</p>
+          <p class="mb-1"><strong>Make:</strong> <%= bike[:make] %></p>
+          <p class="mb-1"><strong>Model:</strong> <%= bike[:model] %></p>
+          <p class="mb-1"><strong>Promised date:</strong> <%= bike[:promised_date] %></p>
+          <p class="mb-1"><strong>Status:</strong> <%= bike[:status] %></p>
+          <% if bike[:overdue] %>
+            <span class="badge bg-danger">Overdue</span>
+          <% else %>
+            <span class="badge bg-success">On schedule</span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<div class="d-flex flex-wrap gap-3 mt-4">
+  <%= link_to "New ticket (drop-off)", mockup_dropoff_path, class: "btn btn-outline-secondary" %>
+  <%= link_to "Quote approval", mockup_quote_approval_path, class: "btn btn-outline-secondary" %>
+  <%= link_to "Public price list", services_path, class: "btn btn-outline-secondary" %>
+</div>

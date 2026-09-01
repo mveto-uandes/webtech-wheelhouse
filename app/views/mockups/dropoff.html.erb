@@ -1,0 +1,62 @@
+<h1>New Ticket</h1>
+<p class="text-muted">Mockup only — staff/counter view, no data is submitted.</p>
+
+<div class="row">
+  <div class="col-lg-9 col-12">
+    <div class="row g-3">
+      <div class="col-md-8">
+        <label class="form-label">Customer name</label>
+        <input type="text" class="form-control" disabled>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Phone</label>
+        <input type="text" class="form-control" disabled>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Bike type</label>
+        <select class="form-select" disabled>
+          <option>Bike</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Make</label>
+        <input type="text" class="form-control" disabled>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Model</label>
+        <input type="text" class="form-control" disabled>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Serial</label>
+        <input type="text" class="form-control" disabled>
+      </div>
+
+      <div class="col-12">
+        <label class="form-label">Extra details</label>
+        <textarea class="form-control" rows="2" disabled></textarea>
+      </div>
+
+      <div class="col-12">
+        <h2>Repairs</h2>
+        <label class="form-label">Reported problem</label>
+        <textarea class="form-control" rows="3" disabled></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-12 mt-3 mt-lg-0">
+    <div class="border rounded p-4 text-center text-muted">
+      <div>Photo upload</div>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex justify-content-end gap-2 mt-4">
+  <button class="btn btn-outline-secondary" disabled>Discard</button>
+  <button class="btn btn-primary" disabled>Save</button>
+</div>
+
+<p class="mt-4">
+  <%= link_to "← Back to repair board", mockup_repair_board_path %>
+</p>

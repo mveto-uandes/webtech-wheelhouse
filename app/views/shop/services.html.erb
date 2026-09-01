@@ -2,19 +2,19 @@
 
 <p class="lead">Here's what we do, and what it costs.</p>
 
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Service</th>
-      <th>Price</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @jobs.each do |job| %>
-      <tr>
-        <td><%= job[:name] %></td>
-        <td>$<%= job[:price] %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<div class="row g-3">
+  <% @jobs.each do |job| %>
+    <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h2 class="h5 card-title"><%= job[:name] %></h2>
+          <p class="card-text fs-4">$<%= job[:price] %></p>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<p class="mt-4 text-muted">
+  Staff: <%= link_to "view bikes currently in the shop", mockup_repair_board_path %>.
+</p>

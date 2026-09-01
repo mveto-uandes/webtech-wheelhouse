@@ -14,9 +14,8 @@
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="icon" href="<%= asset_path 'logo-32.png' %>" type="image/png">
+    <link rel="apple-touch-icon" href="<%= asset_path 'logo-180.png' %>">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
@@ -24,9 +23,12 @@
   </head>
 
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container">
-        <%= link_to "Wheelhouse", root_path, class: "navbar-brand" %>
+        <%= link_to root_path, class: "navbar-brand d-flex align-items-center gap-2" do %>
+          <%= image_tag "logo.png", alt: "Wheelhouse logo", height: 40 %>
+          <span>Wheelhouse</span>
+        <% end %>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -45,6 +47,7 @@
               <%= link_to "About", about_path, class: "nav-link #{'active' if current_page?(about_path)}" %>
             </li>
           </ul>
+          <span class="navbar-text ms-lg-3">User: Johnny Jo.</span>
         </div>
       </div>
     </nav>

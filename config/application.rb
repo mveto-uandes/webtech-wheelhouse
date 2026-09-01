@@ -2,7 +2,7 @@ require_relative "boot"
 
 require "rails"
 # Pick the frameworks you want, skip active_storage/action_mailbox/action_cable
-# (see docs/removed-features.md for why and how to bring them back).
+# (see lab-04-removed-features.md (in web_technologies/, one level above this repo) for why and how to bring them back).
 require "active_model/railtie"
 require "active_job/railtie"
 require "active_record/railtie"
