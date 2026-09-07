@@ -3,12 +3,12 @@
 <p class="lead">Here's what we do, and what it costs.</p>
 
 <div class="row g-3">
-  <% @jobs.each do |job| %>
+  <% @services.each do |service| %>
     <div class="col-lg-3 col-md-4 col-sm-6 col-12">
       <div class="card h-100 text-center">
         <div class="card-body">
-          <h2 class="h5 card-title"><%= job[:name] %></h2>
-          <p class="card-text fs-4">$<%= job[:price] %></p>
+          <h2 class="h5 card-title"><%= service.name %></h2>
+          <p class="card-text fs-4">$<%= service.price %></p>
         </div>
       </div>
     </div>

@@ -21,6 +21,8 @@ visit, and who runs it. See `docs/` for the specification this app was built fro
 bundle install
 npm install
 bin/rails db:create
+bin/rails db:migrate
+bin/rails db:seed
 ```
 
 ## Running the app
