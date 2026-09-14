@@ -1,0 +1,19 @@
+<% content_for :title, "Payment ##{@payment.id} — Wheelhouse" %>
+
+<p><%= link_to "← All payments", catalog_payments_path %></p>
+
+<h1>Payment #<%= @payment.id %></h1>
+
+<dl class="row">
+  <dt class="col-sm-2">Repair</dt>
+  <dd class="col-sm-10"><%= link_to "Repair ##{@payment.repair.id}", catalog_repair_path(@payment.repair) %></dd>
+
+  <dt class="col-sm-2">Amount</dt>
+  <dd class="col-sm-10">$<%= number_with_precision(@payment.amount, precision: 2) %></dd>
+
+  <dt class="col-sm-2">Method</dt>
+  <dd class="col-sm-10"><%= @payment.method.titleize %></dd>
+
+  <dt class="col-sm-2">Paid at</dt>
+  <dd class="col-sm-10"><%= @payment.paid_at.to_fs(:long) %></dd>
+</dl>

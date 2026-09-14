@@ -1,0 +1,11 @@
+<% overdue = repair.promised_on.present? && repair.promised_on.past? && !%w[completed declined].include?(repair.status) %>
+<tr class="<%= "table-danger" if overdue %>">
+  <td><%= link_to "Repair ##{repair.id}", catalog_repair_path(repair) %></td>
+  <td><span class="badge text-bg-secondary"><%= repair.status.titleize %></span></td>
+  <td>
+    <%= repair.promised_on&.to_fs(:long) || "—" %>
+    <% if overdue %><span class="badge text-bg-danger ms-1">Overdue</span><% end %>
+  </td>
+  <td><%= link_to "#{repair.bike.make} #{repair.bike.model}", catalog_bike_path(repair.bike) %></td>
+  <td><%= repair.mechanic ? link_to(repair.mechanic.name, catalog_employee_path(repair.mechanic)) : "Unassigned" %></td>
+</tr>

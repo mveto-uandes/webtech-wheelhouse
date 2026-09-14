@@ -1,0 +1,81 @@
+<% overdue = @repair.promised_on.present? && @repair.promised_on.past? && !%w[completed declined].include?(@repair.status) %>
+<% content_for :title, "Repair ##{@repair.id} — Wheelhouse" %>
+
+<p><%= link_to "← All repairs", catalog_repairs_path %></p>
+
+<h1>
+  Repair #<%= @repair.id %>
+  <span class="badge text-bg-secondary"><%= @repair.status.titleize %></span>
+  <% if overdue %><span class="badge text-bg-danger">Overdue</span><% end %>
+</h1>
+
+<dl class="row">
+  <dt class="col-sm-2">Bike</dt>
+  <dd class="col-sm-10"><%= link_to "#{@repair.bike.make} #{@repair.bike.model}", catalog_bike_path(@repair.bike) %></dd>
+
+  <dt class="col-sm-2">Owner</dt>
+  <dd class="col-sm-10"><%= link_to @repair.bike.customer.name, catalog_customer_path(@repair.bike.customer) %></dd>
+
+  <dt class="col-sm-2">Mechanic</dt>
+  <dd class="col-sm-10">
+    <%= @repair.mechanic ? link_to(@repair.mechanic.name, catalog_employee_path(@repair.mechanic)) : "Unassigned" %>
+  </dd>
+
+  <dt class="col-sm-2">Reported problem</dt>
+  <dd class="col-sm-10"><%= @repair.reported_problem %></dd>
+
+  <dt class="col-sm-2">Diagnosis</dt>
+  <dd class="col-sm-10"><%= @repair.diagnosis.presence || "—" %></dd>
+
+  <dt class="col-sm-2">Promised on</dt>
+  <dd class="col-sm-10"><%= @repair.promised_on&.to_fs(:long) || "—" %></dd>
+
+  <dt class="col-sm-2">Handed back</dt>
+  <dd class="col-sm-10"><%= @repair.handed_back_at&.to_fs(:long) || "—" %></dd>
+</dl>
+
+<h2 class="h4 mt-4">Line items</h2>
+<% if @repair.repair_line_items.any? %>
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Service</th>
+        <th>Charged price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @repair.repair_line_items.each do |item| %>
+        <tr>
+          <td><%= link_to item.service.name, catalog_service_path(item.service) %></td>
+          <td>$<%= number_with_precision(item.charged_price, precision: 2) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-muted">No line items yet.</p>
+<% end %>
+
+<h2 class="h4 mt-4">Payments</h2>
+<% if @repair.payments.any? %>
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Amount</th>
+        <th>Method</th>
+        <th>Paid at</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @repair.payments.each do |payment| %>
+        <tr>
+          <td>$<%= number_with_precision(payment.amount, precision: 2) %></td>
+          <td><%= payment.method.titleize %></td>
+          <td><%= payment.paid_at.to_fs(:long) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-muted">No payments recorded.</p>
+<% end %>

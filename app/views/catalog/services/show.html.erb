@@ -1,0 +1,32 @@
+<% content_for :title, "#{@service.name} — Wheelhouse" %>
+
+<p><%= link_to "← All services", catalog_services_path %></p>
+
+<h1><%= @service.name %></h1>
+
+<dl class="row">
+  <dt class="col-sm-2">Price</dt>
+  <dd class="col-sm-10">$<%= number_with_precision(@service.price, precision: 2) %></dd>
+</dl>
+
+<h2 class="h4 mt-4">Repair line items using this service</h2>
+<% if @service.repair_line_items.any? %>
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Repair</th>
+        <th>Charged price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @service.repair_line_items.each do |item| %>
+        <tr>
+          <td><%= link_to "Repair ##{item.repair.id}", catalog_repair_path(item.repair) %></td>
+          <td>$<%= number_with_precision(item.charged_price, precision: 2) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-muted">Not used in any repair yet.</p>
+<% end %>

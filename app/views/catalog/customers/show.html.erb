@@ -1,0 +1,36 @@
+<% content_for :title, "#{@customer.name} — Wheelhouse" %>
+
+<p><%= link_to "← All customers", catalog_customers_path %></p>
+
+<h1><%= @customer.name %></h1>
+
+<dl class="row">
+  <dt class="col-sm-2">Phone</dt>
+  <dd class="col-sm-10"><%= @customer.phone %></dd>
+</dl>
+
+<h2 class="h4 mt-4">Bikes</h2>
+<% if @customer.bikes.any? %>
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Make</th>
+        <th>Model</th>
+        <th>Color</th>
+        <th>Serial #</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @customer.bikes.each do |bike| %>
+        <tr>
+          <td><%= link_to bike.make, catalog_bike_path(bike) %></td>
+          <td><%= bike.model %></td>
+          <td><%= bike.color %></td>
+          <td><%= bike.serial_number %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-muted">No bikes on file.</p>
+<% end %>

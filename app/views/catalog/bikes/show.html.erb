@@ -1,0 +1,40 @@
+<% content_for :title, "#{@bike.make} #{@bike.model} — Wheelhouse" %>
+
+<p><%= link_to "← All bikes", catalog_bikes_path %></p>
+
+<h1><%= @bike.make %> <%= @bike.model %></h1>
+
+<dl class="row">
+  <dt class="col-sm-2">Color</dt>
+  <dd class="col-sm-10"><%= @bike.color %></dd>
+
+  <dt class="col-sm-2">Serial #</dt>
+  <dd class="col-sm-10"><%= @bike.serial_number %></dd>
+
+  <dt class="col-sm-2">Owner</dt>
+  <dd class="col-sm-10"><%= link_to @bike.customer.name, catalog_customer_path(@bike.customer) %></dd>
+</dl>
+
+<h2 class="h4 mt-4">Repairs</h2>
+<% if @bike.repairs.any? %>
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Status</th>
+        <th>Promised</th>
+        <th>Reported problem</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @bike.repairs.each do |repair| %>
+        <tr>
+          <td><%= link_to repair.status.titleize, catalog_repair_path(repair) %></td>
+          <td><%= repair.promised_on&.to_fs(:long) || "—" %></td>
+          <td><%= truncate(repair.reported_problem, length: 60) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-muted">No repairs on file.</p>
+<% end %>

@@ -1,0 +1,16 @@
+<% content_for :title, "Line item ##{@repair_line_item.id} — Wheelhouse" %>
+
+<p><%= link_to "← All line items", catalog_repair_line_items_path %></p>
+
+<h1>Line item #<%= @repair_line_item.id %></h1>
+
+<dl class="row">
+  <dt class="col-sm-2">Repair</dt>
+  <dd class="col-sm-10"><%= link_to "Repair ##{@repair_line_item.repair.id}", catalog_repair_path(@repair_line_item.repair) %></dd>
+
+  <dt class="col-sm-2">Service</dt>
+  <dd class="col-sm-10"><%= link_to @repair_line_item.service.name, catalog_service_path(@repair_line_item.service) %></dd>
+
+  <dt class="col-sm-2">Charged price</dt>
+  <dd class="col-sm-10">$<%= number_with_precision(@repair_line_item.charged_price, precision: 2) %></dd>
+</dl>

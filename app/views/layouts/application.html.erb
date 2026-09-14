@@ -46,6 +46,20 @@
             <li class="nav-item">
               <%= link_to "About", about_path, class: "nav-link #{'active' if current_page?(about_path)}" %>
             </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle <%= 'active' if request.path.start_with?('/catalog') %>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Records
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><%= link_to "Customers", catalog_customers_path, class: "dropdown-item #{'active' if current_page?(catalog_customers_path)}" %></li>
+                <li><%= link_to "Bikes", catalog_bikes_path, class: "dropdown-item #{'active' if current_page?(catalog_bikes_path)}" %></li>
+                <li><%= link_to "Employees", catalog_employees_path, class: "dropdown-item #{'active' if current_page?(catalog_employees_path)}" %></li>
+                <li><%= link_to "Service Catalog", catalog_services_path, class: "dropdown-item #{'active' if current_page?(catalog_services_path)}" %></li>
+                <li><%= link_to "Repairs", catalog_repairs_path, class: "dropdown-item #{'active' if current_page?(catalog_repairs_path)}" %></li>
+                <li><%= link_to "Repair Line Items", catalog_repair_line_items_path, class: "dropdown-item #{'active' if current_page?(catalog_repair_line_items_path)}" %></li>
+                <li><%= link_to "Payments", catalog_payments_path, class: "dropdown-item #{'active' if current_page?(catalog_payments_path)}" %></li>
+              </ul>
+            </li>
           </ul>
           <span class="navbar-text ms-lg-3">User: Johnny Jo.</span>
         </div>

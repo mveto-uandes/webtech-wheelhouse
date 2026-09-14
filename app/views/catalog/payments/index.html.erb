@@ -1,0 +1,22 @@
+<% content_for :title, "Payments — Wheelhouse" %>
+
+<h1>Payments</h1>
+
+<% if @payments.any? %>
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Payment</th>
+        <th>Repair</th>
+        <th>Amount</th>
+        <th>Method</th>
+        <th>Paid at</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render partial: "row", collection: @payments, as: :payment %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-muted">No payments yet.</p>
+<% end %>

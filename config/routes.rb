@@ -20,4 +20,15 @@ Rails.application.routes.draw do
   get "mockups/repair_board" => "mockups#repair_board", as: :mockup_repair_board
   get "mockups/repair_detail" => "mockups#repair_detail", as: :mockup_repair_detail
   get "mockups/quote_approval" => "mockups#quote_approval", as: :mockup_quote_approval
+
+  # Record catalog: read-only index/show pages for each database table (Lab 6).
+  namespace :catalog do
+    resources :customers, only: [:index, :show]
+    resources :bikes, only: [:index, :show]
+    resources :employees, only: [:index, :show]
+    resources :services, only: [:index, :show]
+    resources :repairs, only: [:index, :show]
+    resources :repair_line_items, only: [:index, :show]
+    resources :payments, only: [:index, :show]
+  end
 end

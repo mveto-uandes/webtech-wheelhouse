@@ -1,0 +1,21 @@
+<% content_for :title, "Bikes — Wheelhouse" %>
+
+<h1>Bikes</h1>
+
+<% if @bikes.any? %>
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Bike</th>
+        <th>Color</th>
+        <th>Serial #</th>
+        <th>Owner</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render partial: "row", collection: @bikes, as: :bike %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-muted">No bikes yet.</p>
+<% end %>

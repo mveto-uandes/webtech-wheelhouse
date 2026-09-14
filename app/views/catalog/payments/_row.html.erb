@@ -1,0 +1,7 @@
+<tr>
+  <td><%= link_to "Payment ##{payment.id}", catalog_payment_path(payment) %></td>
+  <td><%= link_to "Repair ##{payment.repair.id}", catalog_repair_path(payment.repair) %></td>
+  <td>$<%= number_with_precision(payment.amount, precision: 2) %></td>
+  <td><%= payment.method.titleize %></td>
+  <td><%= payment.paid_at.to_fs(:long) %></td>
+</tr>

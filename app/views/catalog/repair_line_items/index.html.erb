@@ -1,0 +1,21 @@
+<% content_for :title, "Repair Line Items — Wheelhouse" %>
+
+<h1>Repair Line Items</h1>
+
+<% if @repair_line_items.any? %>
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Line item</th>
+        <th>Repair</th>
+        <th>Service</th>
+        <th>Charged price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render partial: "row", collection: @repair_line_items, as: :repair_line_item %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-muted">No line items yet.</p>
+<% end %>

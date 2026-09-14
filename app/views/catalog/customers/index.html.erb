@@ -1,0 +1,20 @@
+<% content_for :title, "Customers — Wheelhouse" %>
+
+<h1>Customers</h1>
+
+<% if @customers.any? %>
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Bikes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render partial: "row", collection: @customers, as: :customer %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-muted">No customers yet.</p>
+<% end %>

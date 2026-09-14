@@ -1,0 +1,20 @@
+<% content_for :title, "Employees — Wheelhouse" %>
+
+<h1>Employees</h1>
+
+<% if @employees.any? %>
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Repairs assigned</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render partial: "row", collection: @employees, as: :employee %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-muted">No employees yet.</p>
+<% end %>
