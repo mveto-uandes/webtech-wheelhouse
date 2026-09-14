@@ -23,12 +23,12 @@ Rails.application.routes.draw do
 
   # Record catalog: read-only index/show pages for each database table (Lab 6).
   namespace :catalog do
-    resources :customers, only: [:index, :show]
-    resources :bikes, only: [:index, :show]
-    resources :employees, only: [:index, :show]
-    resources :services, only: [:index, :show]
-    resources :repairs, only: [:index, :show]
-    resources :repair_line_items, only: [:index, :show]
-    resources :payments, only: [:index, :show]
+    resources :customers, only: [ :index, :show ]
+    resources :bikes, only: [ :index, :show ]
+    resources :employees, only: [ :index, :show ]
+    resources :services, only: [ :index, :show ]
+    resources :repairs, only: [ :index, :show ]
+    resources :repair_line_items, only: [ :index, :show ]
+    resources :payments, only: [ :index, :show ]
   end
 end
