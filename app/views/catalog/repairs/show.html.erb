@@ -1,4 +1,4 @@
-<% overdue = @repair.promised_on.present? && @repair.promised_on.past? && !%w[completed declined].include?(@repair.status) %>
+<% overdue = @repair.overdue_and_unpaid? %>
 <% content_for :title, "Repair ##{@repair.id} — Wheelhouse" %>
 
 <p><%= link_to "← All repairs", catalog_repairs_path %></p>

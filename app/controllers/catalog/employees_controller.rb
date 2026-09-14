@@ -1,9 +1,9 @@
 class Catalog::EmployeesController < ApplicationController
   def index
-    @employees = Employee.order(:name)
+    @employees = Employee.includes(:repairs).order(:name)
   end
 
   def show
-    @employee = Employee.find(params[:id])
+    @employee = Employee.includes(repairs: :bike).find(params[:id])
   end
 end

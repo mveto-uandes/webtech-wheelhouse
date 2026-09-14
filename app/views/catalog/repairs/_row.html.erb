@@ -1,4 +1,4 @@
-<% overdue = repair.promised_on.present? && repair.promised_on.past? && !%w[completed declined].include?(repair.status) %>
+<% overdue = repair.overdue_and_unpaid? %>
 <tr class="<%= "table-danger" if overdue %>">
   <td><%= link_to "Repair ##{repair.id}", catalog_repair_path(repair) %></td>
   <td><span class="badge text-bg-secondary"><%= repair.status.titleize %></span></td>

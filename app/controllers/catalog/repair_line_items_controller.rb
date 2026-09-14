@@ -1,6 +1,6 @@
 class Catalog::RepairLineItemsController < ApplicationController
   def index
-    @repair_line_items = RepairLineItem.order(created_at: :desc)
+    @repair_line_items = RepairLineItem.includes(:repair, :service).order(created_at: :desc)
   end
 
   def show

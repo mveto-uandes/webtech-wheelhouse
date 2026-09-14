@@ -1,6 +1,6 @@
 class Catalog::PaymentsController < ApplicationController
   def index
-    @payments = Payment.order(paid_at: :desc)
+    @payments = Payment.includes(:repair).order(paid_at: :desc)
   end
 
   def show

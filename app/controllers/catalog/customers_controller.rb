@@ -1,9 +1,9 @@
 class Catalog::CustomersController < ApplicationController
   def index
-    @customers = Customer.order(:name)
+    @customers = Customer.includes(:bikes).order(:name)
   end
 
   def show
-    @customer = Customer.find(params[:id])
+    @customer = Customer.includes(:bikes).find(params[:id])
   end
 end

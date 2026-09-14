@@ -4,6 +4,6 @@ class Catalog::ServicesController < ApplicationController
   end
 
   def show
-    @service = Service.find(params[:id])
+    @service = Service.includes(repair_line_items: :repair).find(params[:id])
   end
 end
