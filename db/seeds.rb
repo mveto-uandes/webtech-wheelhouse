@@ -300,7 +300,7 @@ REPAIRS.each do |attrs|
       end
     end
 
-  repair = Repair.find_or_create_by!(
+  Repair.find_or_create_by!(
     bike_id: bike.id,
     reported_problem: attrs[:reported_problem]
   ) do |r|
@@ -311,12 +311,12 @@ REPAIRS.each do |attrs|
     r.handed_back_at = handed_back_at
     r.created_at = created_on.to_time + 9.hours
     r.updated_at = created_on.to_time + 9.hours
-  end
 
-  attrs[:services].each do |service_name, override_price|
-    service = services_by_name.fetch(service_name)
-    RepairLineItem.find_or_create_by!(repair_id: repair.id, service_id: service.id) do |li|
-      li.charged_price = override_price || service.price
+    # Line items are built with the repair: a repair past the customer's answer
+    # only saves with its approved services on it.
+    attrs[:services].each do |service_name, override_price|
+      service = services_by_name.fetch(service_name)
+      r.repair_line_items.build(service: service, charged_price: override_price || service.price)
     end
   end
 end

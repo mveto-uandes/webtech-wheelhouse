@@ -1,4 +1,4 @@
-<% overdue = @repair.overdue_and_unpaid? %>
+<% overdue = @repair.overdue? %>
 <% content_for :title, "Repair ##{@repair.id} — Wheelhouse" %>
 
 <p><%= link_to "← All repairs", catalog_repairs_path %></p>
@@ -35,7 +35,7 @@
 </dl>
 
 <h2 class="h4 mt-4">Line items</h2>
-<% if @repair.repair_line_items.any? %>
+<% if @repair_line_items.any? %>
   <table class="table table-striped align-middle">
     <thead>
       <tr>
@@ -44,20 +44,26 @@
       </tr>
     </thead>
     <tbody>
-      <% @repair.repair_line_items.each do |item| %>
+      <% @repair_line_items.each do |item| %>
         <tr>
           <td><%= link_to item.service.name, catalog_service_path(item.service) %></td>
           <td>$<%= number_with_precision(item.charged_price, precision: 2) %></td>
         </tr>
       <% end %>
     </tbody>
+    <tfoot>
+      <tr>
+        <th>Total</th>
+        <th>$<%= number_with_precision(@repair.total, precision: 2) %></th>
+      </tr>
+    </tfoot>
   </table>
 <% else %>
   <p class="text-muted">No line items yet.</p>
 <% end %>
 
 <h2 class="h4 mt-4">Payments</h2>
-<% if @repair.payments.any? %>
+<% if @payments.any? %>
   <table class="table table-striped align-middle">
     <thead>
       <tr>
@@ -67,7 +73,7 @@
       </tr>
     </thead>
     <tbody>
-      <% @repair.payments.each do |payment| %>
+      <% @payments.each do |payment| %>
         <tr>
           <td>$<%= number_with_precision(payment.amount, precision: 2) %></td>
           <td><%= payment.method.titleize %></td>

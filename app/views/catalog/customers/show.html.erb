@@ -10,7 +10,7 @@
 </dl>
 
 <h2 class="h4 mt-4">Bikes</h2>
-<% if @customer.bikes.any? %>
+<% if @bikes.any? %>
   <table class="table table-striped align-middle">
     <thead>
       <tr>
@@ -21,7 +21,7 @@
       </tr>
     </thead>
     <tbody>
-      <% @customer.bikes.each do |bike| %>
+      <% @bikes.each do |bike| %>
         <tr>
           <td><%= link_to bike.make, catalog_bike_path(bike) %></td>
           <td><%= bike.model %></td>

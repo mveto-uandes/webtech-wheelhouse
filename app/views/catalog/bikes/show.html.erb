@@ -16,7 +16,7 @@
 </dl>
 
 <h2 class="h4 mt-4">Repairs</h2>
-<% if @bike.repairs.any? %>
+<% if @repairs.any? %>
   <table class="table table-striped align-middle">
     <thead>
       <tr>
@@ -26,7 +26,7 @@
       </tr>
     </thead>
     <tbody>
-      <% @bike.repairs.each do |repair| %>
+      <% @repairs.each do |repair| %>
         <tr>
           <td><%= link_to repair.status.titleize, catalog_repair_path(repair) %></td>
           <td><%= repair.promised_on&.to_fs(:long) || "—" %></td>

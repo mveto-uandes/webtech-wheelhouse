@@ -1,9 +1,10 @@
 class Catalog::ServicesController < ApplicationController
   def index
-    @services = Service.order(:name)
+    @services = Service.by_name
   end
 
   def show
-    @service = Service.includes(repair_line_items: :repair).find(params[:id])
+    @service = Service.find(params[:id])
+    @repair_line_items = @service.repair_line_items.includes(:repair).newest_first
   end
 end

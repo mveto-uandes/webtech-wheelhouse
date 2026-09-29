@@ -1,9 +1,10 @@
 class Catalog::BikesController < ApplicationController
   def index
-    @bikes = Bike.includes(:customer).order(:make, :model)
+    @bikes = Bike.includes(:customer).by_make_and_model
   end
 
   def show
-    @bike = Bike.includes(:repairs).find(params[:id])
+    @bike = Bike.includes(:customer).find(params[:id])
+    @repairs = @bike.repairs.newest_first
   end
 end

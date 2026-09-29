@@ -10,7 +10,7 @@
 </dl>
 
 <h2 class="h4 mt-4">Repair line items using this service</h2>
-<% if @service.repair_line_items.any? %>
+<% if @repair_line_items.any? %>
   <table class="table table-striped align-middle">
     <thead>
       <tr>
@@ -19,7 +19,7 @@
       </tr>
     </thead>
     <tbody>
-      <% @service.repair_line_items.each do |item| %>
+      <% @repair_line_items.each do |item| %>
         <tr>
           <td><%= link_to "Repair ##{item.repair.id}", catalog_repair_path(item.repair) %></td>
           <td>$<%= number_with_precision(item.charged_price, precision: 2) %></td>

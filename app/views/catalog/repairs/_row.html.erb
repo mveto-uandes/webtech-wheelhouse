@@ -1,4 +1,4 @@
-<% overdue = repair.overdue_and_unpaid? %>
+<% overdue = repair.overdue? %>
 <tr class="<%= "table-danger" if overdue %>">
   <td><%= link_to "Repair ##{repair.id}", catalog_repair_path(repair) %></td>
   <td><span class="badge text-bg-secondary"><%= repair.status.titleize %></span></td>
@@ -7,5 +7,6 @@
     <% if overdue %><span class="badge text-bg-danger ms-1">Overdue</span><% end %>
   </td>
   <td><%= link_to "#{repair.bike.make} #{repair.bike.model}", catalog_bike_path(repair.bike) %></td>
+  <td><%= link_to repair.bike.customer.name, catalog_customer_path(repair.bike.customer) %></td>
   <td><%= repair.mechanic ? link_to(repair.mechanic.name, catalog_employee_path(repair.mechanic)) : "Unassigned" %></td>
 </tr>

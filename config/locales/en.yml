@@ -1,31 +1,51 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
+# Attribute names and error messages for the Wheelhouse models, worded for the
+# person at the counter rather than for a developer.
 
 en:
-  hello: "Hello world"
+  activerecord:
+    models:
+      repair_line_item:
+        one: "line item"
+        other: "line items"
+    attributes:
+      bike:
+        customer: "Owner"
+        serial_number: "Serial number"
+      repair:
+        bike: "Bike"
+        mechanic: "Mechanic"
+        status: "State"
+        reported_problem: "Reported problem"
+        promised_on: "Promised day"
+        handed_back_at: "Hand-back time"
+      repair_line_item:
+        repair: "Repair"
+        service: "Service"
+        charged_price: "Charged price"
+      payment:
+        repair: "Repair"
+        method: "Payment method"
+        paid_at: "Payment date"
+    errors:
+      messages:
+        required: "must be chosen"
+        greater_than: "must be more than %{count}"
+      models:
+        customer:
+          restrict_dependent_destroy:
+            has_many: "This customer still has bikes on file, so they can't be deleted."
+        bike:
+          attributes:
+            serial_number:
+              taken: "is already registered to another bike"
+          restrict_dependent_destroy:
+            has_many: "This bike has repairs on file, so it can't be deleted."
+        service:
+          attributes:
+            name:
+              taken: "is already on the price list"
+          restrict_dependent_destroy:
+            has_many: "This service has been charged on a repair, so it can't be deleted."
+        repair:
+          restrict_dependent_destroy:
+            has_many: "This repair has payments recorded, so it can't be deleted."
