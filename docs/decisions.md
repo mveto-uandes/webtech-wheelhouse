@@ -22,3 +22,17 @@ There's no separate column for it, only `status`. What the customer says yes to 
 
 **Which columns get cleaned up before saving?**
 Bike serial numbers are stripped and upper-cased in a `before_validation` callback, so `" wtu123 "` and `"WTU123"` count as the same bike. Service names and customer names get their extra spaces squeezed out with `normalizes`, so `"Flat  tire repair "` can't sneak past the unique name on the price list. They aren't upper-cased, though, because they're shown to people as typed.
+
+## Lab 8: writing from the browser
+
+**How many empty service rows does the repair form offer, and how do you get more?**
+The repair form always shows its current lines plus 3 empty rows. That covers most drop-offs: the usual repair in the seed has one or two services. The form has to work without JavaScript, so it can't grow by itself. If a repair needs more than 3 new services, you save it, press Edit, and you get 3 more empty rows. A row left on "No service" is ignored.
+
+**Why are the line errors named after the service?**
+On the repair's form there can be several lines, so "Charged price must be more than 0" doesn't tell you which one. The message says "Charged price for Flat tire repair must be more than 0", and the price field on that row is marked in red.
+
+**Why are payments still read-only?**
+The lab asks for full create/edit/delete on customers, bikes, repairs, services and staff. Payments aren't in that list, and the counter doesn't take payments in the app yet, so they keep their Lab 6 pages.
+
+**Why is Turbo back?**
+It was removed in Lab 4 to keep the route list short. The Delete button asks for confirmation with `data-turbo-confirm`, which is what Rails provides for that, so `turbo-rails` is back in the Gemfile and the import map.

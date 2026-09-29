@@ -1,8 +1,14 @@
 <% content_for :title, "#{@employee.name} — Wheelhouse" %>
 
-<p><%= link_to "← All employees", catalog_employees_path %></p>
+<p><%= link_to "← All staff", catalog_employees_path %></p>
 
 <h1><%= @employee.name %></h1>
+
+<div class="d-flex gap-2 mb-4">
+  <%= link_to "Edit", edit_catalog_employee_path(@employee), class: "btn btn-outline-primary" %>
+  <%= button_to "Delete", catalog_employee_path(@employee), method: :delete,
+        class: "btn btn-outline-danger", form: { data: { turbo_confirm: "Remove #{@employee.name} from the staff? This can't be undone." } } %>
+</div>
 
 <dl class="row">
   <dt class="col-sm-2">Role</dt>

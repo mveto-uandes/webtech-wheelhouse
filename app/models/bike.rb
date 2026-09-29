@@ -11,6 +11,11 @@ class Bike < ApplicationRecord
 
   scope :by_make_and_model, -> { order(:make, :model, :serial_number) }
 
+  # How a bike is named in a select: make and model alone can repeat.
+  def label
+    "#{make} #{model} (#{serial_number})"
+  end
+
   private
 
   def normalize_serial_number

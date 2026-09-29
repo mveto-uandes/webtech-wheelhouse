@@ -1,0 +1,5 @@
+<% content_for :title, "Edit repair ##{@repair.id} — Wheelhouse" %>
+
+<h1>Edit repair #<%= @repair.id %></h1>
+
+<%= render "form", repair: @repair, cancel_path: catalog_repair_path(@repair) %>

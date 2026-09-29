@@ -1,0 +1,5 @@
+<% content_for :title, "Edit bike #{@bike.serial_number} — Wheelhouse" %>
+
+<h1>Edit bike <%= @bike.serial_number %></h1>
+
+<%= render "form", bike: @bike, cancel_path: catalog_bike_path(@bike) %>

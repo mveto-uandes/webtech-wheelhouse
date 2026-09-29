@@ -1,6 +1,9 @@
 <% content_for :title, "Service Catalog — Wheelhouse" %>
 
-<h1>Service Catalog</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="mb-0">Service Catalog</h1>
+  <%= link_to "New service", new_catalog_service_path, class: "btn btn-primary" %>
+</div>
 
 <% if @services.any? %>
   <table class="table table-striped align-middle">

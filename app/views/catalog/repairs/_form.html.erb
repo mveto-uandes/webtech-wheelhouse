@@ -1,0 +1,89 @@
+<%= form_with model: [ :catalog, repair ] do |f| %>
+  <%= render "shared/form_errors", object: repair %>
+
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <%= f.label :bike_id, class: "form-label" %>
+      <%= f.collection_select :bike_id, Bike.by_make_and_model, :id, :label,
+            { prompt: "Choose the bike" }, class: field_class(f.object, :bike, "form-select") %>
+      <%= field_errors(f.object, :bike) %>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <%= f.label :mechanic_id, class: "form-label" %>
+      <%= f.collection_select :mechanic_id, Employee.mechanics.by_name, :id, :name,
+            { include_blank: "Unassigned" }, class: field_class(f.object, :mechanic, "form-select") %>
+      <%= field_errors(f.object, :mechanic) %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4 mb-3">
+      <%= f.label :status, class: "form-label" %>
+      <%= f.select :status, Repair.statuses.keys.map { |state| [ state.humanize, state ] },
+            {}, class: field_class(f.object, :status, "form-select") %>
+      <%= field_errors(f.object, :status) %>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <%= f.label :promised_on, class: "form-label" %>
+      <%= f.date_field :promised_on, class: field_class(f.object, :promised_on) %>
+      <%= field_errors(f.object, :promised_on) %>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <%= f.label :handed_back_at, class: "form-label" %>
+      <%= f.datetime_local_field :handed_back_at, class: field_class(f.object, :handed_back_at) %>
+      <%= field_errors(f.object, :handed_back_at) %>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :reported_problem, class: "form-label" %>
+    <%= f.text_area :reported_problem, rows: 3, class: field_class(f.object, :reported_problem) %>
+    <%= field_errors(f.object, :reported_problem) %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :diagnosis, class: "form-label" %>
+    <%= f.text_area :diagnosis, rows: 3, class: field_class(f.object, :diagnosis) %>
+    <%= field_errors(f.object, :diagnosis) %>
+  </div>
+
+  <fieldset class="mb-4">
+    <legend class="h5">Services</legend>
+    <p class="form-text mt-0">
+      Rows left without a service are ignored. Need more rows? Save, then edit the repair again.
+    </p>
+
+    <% services = Service.by_name.to_a %>
+    <%= f.fields_for :repair_line_items do |line| %>
+      <div class="row g-2 align-items-end mb-2">
+        <div class="col-md-6">
+          <%= line.label :service_id, class: "form-label" %>
+          <%= line.collection_select :service_id, services, :id, :name,
+                { include_blank: "No service" }, class: field_class(line.object, :service, "form-select") %>
+          <%= field_errors(line.object, :service) %>
+        </div>
+
+        <div class="col-md-4">
+          <%= line.label :charged_price, class: "form-label" %>
+          <%= line.number_field :charged_price, step: 0.01, class: field_class(line.object, :charged_price) %>
+          <%= field_errors(line.object, :charged_price) %>
+        </div>
+
+        <% if line.object.persisted? %>
+          <div class="col-md-2">
+            <div class="form-check mb-2">
+              <%= line.check_box :_destroy, class: "form-check-input" %>
+              <%= line.label :_destroy, "Remove", class: "form-check-label" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </fieldset>
+
+  <%= f.submit class: "btn btn-primary" %>
+  <%= link_to "Cancel", cancel_path, class: "btn btn-link" %>
+<% end %>

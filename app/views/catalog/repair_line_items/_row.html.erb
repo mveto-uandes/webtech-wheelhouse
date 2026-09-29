@@ -1,6 +1,0 @@
-<tr>
-  <td><%= link_to "Line item ##{repair_line_item.id}", catalog_repair_line_item_path(repair_line_item) %></td>
-  <td><%= link_to "Repair ##{repair_line_item.repair.id}", catalog_repair_path(repair_line_item.repair) %></td>
-  <td><%= link_to repair_line_item.service.name, catalog_service_path(repair_line_item.service) %></td>
-  <td>$<%= number_with_precision(repair_line_item.charged_price, precision: 2) %></td>
-</tr>

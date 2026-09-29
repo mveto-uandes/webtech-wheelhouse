@@ -53,10 +53,9 @@
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><%= link_to "Customers", catalog_customers_path, class: "dropdown-item #{'active' if request.path.start_with?(catalog_customers_path)}" %></li>
                 <li><%= link_to "Bikes", catalog_bikes_path, class: "dropdown-item #{'active' if request.path.start_with?(catalog_bikes_path)}" %></li>
-                <li><%= link_to "Employees", catalog_employees_path, class: "dropdown-item #{'active' if request.path.start_with?(catalog_employees_path)}" %></li>
+                <li><%= link_to "Staff", catalog_employees_path, class: "dropdown-item #{'active' if request.path.start_with?(catalog_employees_path)}" %></li>
                 <li><%= link_to "Service Catalog", catalog_services_path, class: "dropdown-item #{'active' if request.path.start_with?(catalog_services_path)}" %></li>
                 <li><%= link_to "Repairs", catalog_repairs_path, class: "dropdown-item #{'active' if request.path.start_with?(catalog_repairs_path)}" %></li>
-                <li><%= link_to "Repair Line Items", catalog_repair_line_items_path, class: "dropdown-item #{'active' if request.path.start_with?(catalog_repair_line_items_path)}" %></li>
                 <li><%= link_to "Payments", catalog_payments_path, class: "dropdown-item #{'active' if request.path.start_with?(catalog_payments_path)}" %></li>
               </ul>
             </li>
@@ -67,6 +66,12 @@
     </nav>
 
     <main class="container my-4">
+      <% flash.each do |type, message| %>
+        <div class="alert <%= flash_class(type) %> alert-dismissible fade show" role="alert">
+          <%= message %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% end %>
       <%= yield %>
     </main>
   </body>

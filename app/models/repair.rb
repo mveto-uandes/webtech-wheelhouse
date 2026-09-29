@@ -6,6 +6,12 @@ class Repair < ApplicationRecord
   has_many :repair_line_items, dependent: :destroy
   has_many :services, through: :repair_line_items, dependent: :destroy
 
+  # Lines are written through the repair's form. A line left without a service
+  # is an unused blank row, not a mistake.
+  accepts_nested_attributes_for :repair_line_items,
+    allow_destroy: true,
+    reject_if: ->(attributes) { attributes["service_id"].blank? && attributes["id"].blank? }
+
   enum :status, {
     received: "received",
     diagnosing: "diagnosing",

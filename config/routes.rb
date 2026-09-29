@@ -21,14 +21,15 @@ Rails.application.routes.draw do
   get "mockups/repair_detail" => "mockups#repair_detail", as: :mockup_repair_detail
   get "mockups/quote_approval" => "mockups#quote_approval", as: :mockup_quote_approval
 
-  # Record catalog: read-only index/show pages for each database table (Lab 6).
+  # Records: full CRUD for what the counter manages (Lab 8). Repair line items
+  # have no routes of their own; they're written through the repair's form.
+  # Payments stay read-only.
   namespace :catalog do
-    resources :customers, only: [ :index, :show ]
-    resources :bikes, only: [ :index, :show ]
-    resources :employees, only: [ :index, :show ]
-    resources :services, only: [ :index, :show ]
-    resources :repairs, only: [ :index, :show ]
-    resources :repair_line_items, only: [ :index, :show ]
+    resources :customers
+    resources :bikes
+    resources :employees
+    resources :services
+    resources :repairs
     resources :payments, only: [ :index, :show ]
   end
 end

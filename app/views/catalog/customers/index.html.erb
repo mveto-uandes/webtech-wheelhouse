@@ -1,6 +1,9 @@
 <% content_for :title, "Customers — Wheelhouse" %>
 
-<h1>Customers</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="mb-0">Customers</h1>
+  <%= link_to "New customer", new_catalog_customer_path, class: "btn btn-primary" %>
+</div>
 
 <% if @customers.any? %>
   <table class="table table-striped align-middle">

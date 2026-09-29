@@ -2,23 +2,38 @@
 # person at the counter rather than for a developer.
 
 en:
+  helpers:
+    submit:
+      create: "Add %{model}"
+      update: "Save changes"
   activerecord:
     models:
       repair_line_item:
         one: "line item"
         other: "line items"
+      employee:
+        one: "Staff member"
+        other: "Staff"
     attributes:
       bike:
         customer: "Owner"
+        customer_id: "Owner"
         serial_number: "Serial number"
       repair:
         bike: "Bike"
+        bike_id: "Bike"
         mechanic: "Mechanic"
+        mechanic_id: "Mechanic"
         status: "State"
         reported_problem: "Reported problem"
         promised_on: "Promised day"
         handed_back_at: "Hand-back time"
       repair_line_item:
+        repair: "Repair"
+        service: "Service"
+        service_id: "Service"
+        charged_price: "Charged price"
+      repair/repair_line_items:
         repair: "Repair"
         service: "Service"
         charged_price: "Charged price"

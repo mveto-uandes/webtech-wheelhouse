@@ -4,6 +4,12 @@
 
 <h1><%= @service.name %></h1>
 
+<div class="d-flex gap-2 mb-4">
+  <%= link_to "Edit", edit_catalog_service_path(@service), class: "btn btn-outline-primary" %>
+  <%= button_to "Delete", catalog_service_path(@service), method: :delete,
+        class: "btn btn-outline-danger", form: { data: { turbo_confirm: "Delete service #{@service.name}? This can't be undone." } } %>
+</div>
+
 <dl class="row">
   <dt class="col-sm-2">Price</dt>
   <dd class="col-sm-10">$<%= number_with_precision(@service.price, precision: 2) %></dd>

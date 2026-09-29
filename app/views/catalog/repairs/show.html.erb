@@ -9,6 +9,12 @@
   <% if overdue %><span class="badge text-bg-danger">Overdue</span><% end %>
 </h1>
 
+<div class="d-flex gap-2 mb-4">
+  <%= link_to "Edit", edit_catalog_repair_path(@repair), class: "btn btn-outline-primary" %>
+  <%= button_to "Delete", catalog_repair_path(@repair), method: :delete,
+        class: "btn btn-outline-danger", form: { data: { turbo_confirm: "Delete repair ##{@repair.id} for bike #{@repair.bike.serial_number}? This can't be undone." } } %>
+</div>
+
 <dl class="row">
   <dt class="col-sm-2">Bike</dt>
   <dd class="col-sm-10"><%= link_to "#{@repair.bike.make} #{@repair.bike.model}", catalog_bike_path(@repair.bike) %></dd>

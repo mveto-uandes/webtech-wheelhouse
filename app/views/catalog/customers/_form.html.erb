@@ -1,0 +1,18 @@
+<%= form_with model: [ :catalog, customer ] do |f| %>
+  <%= render "shared/form_errors", object: customer %>
+
+  <div class="mb-3">
+    <%= f.label :name, class: "form-label" %>
+    <%= f.text_field :name, class: field_class(f.object, :name) %>
+    <%= field_errors(f.object, :name) %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :phone, class: "form-label" %>
+    <%= f.telephone_field :phone, class: field_class(f.object, :phone) %>
+    <%= field_errors(f.object, :phone) %>
+  </div>
+
+  <%= f.submit class: "btn btn-primary" %>
+  <%= link_to "Cancel", cancel_path, class: "btn btn-link" %>
+<% end %>

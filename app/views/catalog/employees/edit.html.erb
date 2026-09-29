@@ -1,0 +1,5 @@
+<% content_for :title, "Edit #{@employee.name} — Wheelhouse" %>
+
+<h1>Edit <%= @employee.name %></h1>
+
+<%= render "form", employee: @employee, cancel_path: catalog_employee_path(@employee) %>
