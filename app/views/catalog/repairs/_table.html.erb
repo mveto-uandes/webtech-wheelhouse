@@ -1,0 +1,18 @@
+<%# Every list of repairs: the repairs index, a bike's page, a mechanic's page. %>
+<table class="table table-striped align-middle">
+  <thead>
+    <tr>
+      <th><span class="visually-hidden">Photo</span></th>
+      <th>Repair</th>
+      <th>Status</th>
+      <th>Promised</th>
+      <th>Bike</th>
+      <th>Customer</th>
+      <th>Mechanic</th>
+      <th>Diagnosis</th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= render partial: "catalog/repairs/row", collection: repairs, as: :repair %>
+  </tbody>
+</table>

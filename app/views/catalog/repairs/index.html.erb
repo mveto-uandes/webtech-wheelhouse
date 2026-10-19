@@ -6,21 +6,7 @@
 </div>
 
 <% if @repairs.any? %>
-  <table class="table table-striped align-middle">
-    <thead>
-      <tr>
-        <th>Repair</th>
-        <th>Status</th>
-        <th>Promised</th>
-        <th>Bike</th>
-        <th>Customer</th>
-        <th>Mechanic</th>
-      </tr>
-    </thead>
-    <tbody>
-      <%= render partial: "row", collection: @repairs, as: :repair %>
-    </tbody>
-  </table>
+  <%= render "table", repairs: @repairs %>
 <% else %>
   <p class="text-muted">No repairs yet.</p>
 <% end %>

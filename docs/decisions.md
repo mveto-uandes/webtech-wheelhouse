@@ -36,3 +36,29 @@ The lab asks for full create/edit/delete on customers, bikes, repairs, services 
 
 **Why is Turbo back?**
 It was removed in Lab 4 to keep the route list short. The Delete button asks for confirmation with `data-turbo-confirm`, which is what Rails provides for that, so `turbo-rails` is back in the Gemfile and the import map.
+
+## Lab 9: intake photos and the diagnosis
+
+**Which photos are accepted?**
+JPEG, PNG and WebP. JPEG is what almost every phone camera saves, PNG is what a screenshot is, and some Android phones save WebP. iPhones take HEIC photos, but when a browser uploads one it sends a JPEG, so HEIC doesn't need its own entry. A PDF, a video or an SVG is refused. The type is the one Active Storage reads from the file's first bytes, not from its name, so a PDF renamed `photo.jpg` is refused too. The field's `accept` attribute only narrows the file picker. The model is what refuses.
+
+**How big can a photo be?**
+10 MB each. A phone photo is between 2 and 6 MB, so 10 MB leaves room for a good camera without letting someone fill the disk with one upload. The message names the file and says how big it is, for example "Intake photos can be at most 10 MB each, and “wheel.jpg” is 11.1 MB".
+
+**Why do new photos join the old ones instead of replacing them?**
+Assigning photos to a record replaces the whole set, and an empty file field would delete all of them. The edit form doesn't send the field at all when no file is chosen, and the controller adds the chosen files to the photos already on file. If any file is refused, nothing is saved: not the refused file, and not the valid ones sent with it.
+
+**How is one photo removed?**
+Each photo has its own Remove button (a `DELETE` with a confirmation), on the repair's page and below its edit form. It purges the photo, which deletes the attachment row, the blob row, the file, and the thumbnails made from it. The other photos stay. The page you pressed it on is the page you go back to.
+
+**What happens to the photos when a repair is deleted?**
+The attachment rows and the rich-text row go with the repair. The blobs and the files are purged right after, in a background job.
+
+**How big are the thumbnails?**
+Two sizes, both written once in `Repair`: 96×72 for the lists, cropped to fill the box so every row lines up whatever the photo's shape, and up to 960×720 on the repair's page, shrunk but not cropped. Both drop the camera's metadata, which can weigh more than a small thumbnail. A thumbnail weighs around 3 KB, where the original is a few MB. The original is downloaded only when you click a photo. A repair with no photo shows a grey "No photo" box of the same size, so its row stays aligned.
+
+**Where does the diagnosis live now?**
+It was a `text` column on `repairs`. It's now rich text stored by Action Text. A migration copied each existing diagnosis into the rich-text table (escaped, since it was plain text) and then removed the column. Rolling the migration back copies the plain text back. The lists show the first 50 characters of the diagnosis as plain text, on one line.
+
+**Why is the editor's attach button hidden?**
+A file attached inside the diagnosis would skip the type and size rules of the intake photos. Photos go in the "Intake photos" field, where they're checked.

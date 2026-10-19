@@ -3,3 +3,6 @@
 <h1>Edit repair #<%= @repair.id %></h1>
 
 <%= render "form", repair: @repair, cancel_path: catalog_repair_path(@repair) %>
+
+<h2 class="h4 mt-5">Intake photos on file</h2>
+<%= render "intake_photos", repair: @repair, photos: @intake_photos %>

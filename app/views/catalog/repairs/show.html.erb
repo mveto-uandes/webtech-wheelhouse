@@ -31,7 +31,13 @@
   <dd class="col-sm-10"><%= @repair.reported_problem %></dd>
 
   <dt class="col-sm-2">Diagnosis</dt>
-  <dd class="col-sm-10"><%= @repair.diagnosis.presence || "—" %></dd>
+  <dd class="col-sm-10">
+    <% if @repair.diagnosis.present? %>
+      <%= @repair.diagnosis %>
+    <% else %>
+      <span class="text-muted">No diagnosis written yet.</span>
+    <% end %>
+  </dd>
 
   <dt class="col-sm-2">Promised on</dt>
   <dd class="col-sm-10"><%= @repair.promised_on&.to_fs(:long) || "—" %></dd>
@@ -39,6 +45,9 @@
   <dt class="col-sm-2">Handed back</dt>
   <dd class="col-sm-10"><%= @repair.handed_back_at&.to_fs(:long) || "—" %></dd>
 </dl>
+
+<h2 class="h4 mt-4">Intake photos</h2>
+<%= render "intake_photos", repair: @repair, photos: @intake_photos %>
 
 <h2 class="h4 mt-4">Line items</h2>
 <% if @repair_line_items.any? %>

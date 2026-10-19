@@ -1,0 +1,23 @@
+<%# The repair's stored photos, each linked to its original and removable on its own. %>
+<% if photos.any? %>
+  <div class="row g-3 mb-4">
+    <% photos.each.with_index(1) do |photo, position| %>
+      <div class="col-sm-6 col-lg-4">
+        <figure class="figure mb-0 w-100">
+          <%= link_to rails_blob_path(photo, disposition: "inline"), data: { turbo: false } do %>
+            <%= image_tag photo.variant(:large), alt: intake_photo_alt(repair, position: position, count: photos.size),
+                  class: "figure-img img-fluid rounded" %>
+          <% end %>
+          <figcaption class="figure-caption d-flex justify-content-between align-items-center">
+            <span>Photo <%= position %> of <%= photos.size %> · click for full size</span>
+            <%= button_to "Remove", catalog_repair_intake_photo_path(repair, photo), method: :delete,
+                  class: "btn btn-sm btn-outline-danger",
+                  form: { data: { turbo_confirm: "Remove photo #{position} from repair ##{repair.id}? The file is deleted and can't be brought back." } } %>
+          </figcaption>
+        </figure>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p class="text-muted">No intake photos for this repair.</p>
+<% end %>

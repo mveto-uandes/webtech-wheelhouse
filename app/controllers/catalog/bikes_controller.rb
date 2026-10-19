@@ -6,7 +6,8 @@ class Catalog::BikesController < ApplicationController
   end
 
   def show
-    @repairs = @bike.repairs.newest_first
+    @repairs = @bike.repairs.includes(:mechanic, bike: :customer)
+      .with_attached_intake_photos.with_rich_text_diagnosis_and_embeds.newest_first
   end
 
   # From a customer's page the owner comes already chosen.

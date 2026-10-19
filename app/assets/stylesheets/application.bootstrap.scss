@@ -4,3 +4,30 @@ $font-family-sans-serif: "Helvetica Neue", Arial, sans-serif;
 
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-icons/font/bootstrap-icons';
+
+// Thumbnails in the lists of repairs. The variant is already cropped to its
+// box; object-fit keeps the image from stretching if a browser scales it.
+.repair-thumbnail {
+  display: block;
+  object-fit: cover;
+}
+
+.repair-thumbnail-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  color: $text-muted;
+  background-color: $gray-200;
+}
+
+// The diagnosis editor. Trix's own stylesheet (actiontext.css) draws the
+// toolbar; this matches the editor's box to the other fields. Files go in
+// "Intake photos", where they're validated, so the attach button is hidden.
+trix-editor.form-control {
+  min-height: 8em;
+}
+
+trix-toolbar .trix-button-group--file-tools {
+  display: none;
+}

@@ -26,24 +26,7 @@
   <%= link_to "Take in a repair", new_catalog_repair_path(bike_id: @bike.id), class: "btn btn-sm btn-outline-primary" %>
 </div>
 <% if @repairs.any? %>
-  <table class="table table-striped align-middle">
-    <thead>
-      <tr>
-        <th>Status</th>
-        <th>Promised</th>
-        <th>Reported problem</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @repairs.each do |repair| %>
-        <tr>
-          <td><%= link_to repair.status.titleize, catalog_repair_path(repair) %></td>
-          <td><%= repair.promised_on&.to_fs(:long) || "—" %></td>
-          <td><%= truncate(repair.reported_problem, length: 60) %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+  <%= render "catalog/repairs/table", repairs: @repairs %>
 <% else %>
   <p class="text-muted">No repairs on file.</p>
 <% end %>

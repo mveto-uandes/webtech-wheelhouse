@@ -1,6 +1,19 @@
 <% overdue = repair.overdue? %>
+<% photo = repair.intake_photos.first %>
+<% width, height = Repair::THUMBNAIL_SIZE %>
 <tr class="<%= "table-danger" if overdue %>">
-  <td><%= link_to "Repair ##{repair.id}", catalog_repair_path(repair) %></td>
+  <td>
+    <% if photo %>
+      <%= link_to catalog_repair_path(repair) do %>
+        <%= image_tag photo.variant(:thumbnail), alt: intake_photo_alt(repair),
+              width: width, height: height, class: "repair-thumbnail rounded" %>
+      <% end %>
+    <% else %>
+      <%= tag.div "No photo", class: "repair-thumbnail repair-thumbnail-empty rounded",
+            style: "width: #{width}px; height: #{height}px;" %>
+    <% end %>
+  </td>
+  <td class="text-nowrap"><%= link_to "Repair ##{repair.id}", catalog_repair_path(repair) %></td>
   <td><span class="badge text-bg-secondary"><%= repair.status.titleize %></span></td>
   <td>
     <%= repair.promised_on&.to_fs(:long) || "—" %>
@@ -9,4 +22,5 @@
   <td><%= link_to "#{repair.bike.make} #{repair.bike.model}", catalog_bike_path(repair.bike) %></td>
   <td><%= link_to repair.bike.customer.name, catalog_customer_path(repair.bike.customer) %></td>
   <td><%= repair.mechanic ? link_to(repair.mechanic.name, catalog_employee_path(repair.mechanic)) : "Unassigned" %></td>
+  <td class="text-nowrap small text-body-secondary"><%= diagnosis_excerpt(repair) %></td>
 </tr>

@@ -46,8 +46,19 @@
 
   <div class="mb-3">
     <%= f.label :diagnosis, class: "form-label" %>
-    <%= f.text_area :diagnosis, rows: 3, class: field_class(f.object, :diagnosis) %>
+    <%= f.rich_textarea :diagnosis, class: field_class(f.object, :diagnosis) %>
     <%= field_errors(f.object, :diagnosis) %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :intake_photos, class: "form-label" %>
+    <%= f.file_field :intake_photos, multiple: true, include_hidden: false,
+          accept: Repair::INTAKE_PHOTO_TYPES.join(","), class: field_class(f.object, :intake_photos) %>
+    <div class="form-text">
+      JPEG, PNG or WebP, up to <%= number_to_human_size(Repair::INTAKE_PHOTO_MAX_SIZE) %> each. Pick several at once.
+      <% if repair.persisted? %>They're added to the photos already on the repair.<% end %>
+    </div>
+    <%= field_errors(f.object, :intake_photos) %>
   </div>
 
   <fieldset class="mb-4">

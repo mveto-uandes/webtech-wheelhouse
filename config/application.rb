@@ -1,14 +1,17 @@
 require_relative "boot"
 
 require "rails"
-# Pick the frameworks you want, skip active_storage/action_mailbox/action_cable
-# (see lab-04-removed-features.md (in web_technologies/, one level above this repo) for why and how to bring them back).
+# Pick the frameworks you want. Action Mailbox and Action Cable stay out: the
+# shop receives no email and pushes nothing live. Active Storage holds the
+# repairs' intake photos and Action Text their diagnosis (Lab 9).
 require "active_model/railtie"
 require "active_job/railtie"
 require "active_record/railtie"
+require "active_storage/engine"
 require "action_controller/railtie"
 require "action_mailer/railtie"
 require "action_view/railtie"
+require "action_text/engine"
 require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems

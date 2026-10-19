@@ -28,6 +28,8 @@ en:
         reported_problem: "Reported problem"
         promised_on: "Promised day"
         handed_back_at: "Hand-back time"
+        intake_photos: "Intake photos"
+        diagnosis: "Diagnosis"
       repair_line_item:
         repair: "Repair"
         service: "Service"
@@ -62,5 +64,9 @@ en:
           restrict_dependent_destroy:
             has_many: "This service has been charged on a repair, so it can't be deleted."
         repair:
+          attributes:
+            intake_photos:
+              not_a_photo: "can only be JPEG, PNG or WebP images, and “%{filename}” isn't one"
+              too_large: "can be at most %{limit} each, and “%{filename}” is %{size}"
           restrict_dependent_destroy:
             has_many: "This repair has payments recorded, so it can't be deleted."

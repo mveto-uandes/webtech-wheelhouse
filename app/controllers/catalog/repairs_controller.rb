@@ -7,10 +7,12 @@ class Catalog::RepairsController < ApplicationController
   before_action :set_repair, only: %i[show edit update destroy]
 
   def index
-    @repairs = Repair.includes(:mechanic, bike: :customer).by_promised_on
+    @repairs = Repair.includes(:mechanic, bike: :customer)
+      .with_attached_intake_photos.with_rich_text_diagnosis_and_embeds.by_promised_on
   end
 
   def show
+    @intake_photos = @repair.intake_photos_attachments
     @repair_line_items = @repair.repair_line_items.includes(:service).oldest_first
     @payments = @repair.payments.oldest_first
   end
@@ -32,13 +34,22 @@ class Catalog::RepairsController < ApplicationController
   end
 
   def edit
+    @intake_photos = @repair.intake_photos_attachments
     add_blank_lines
   end
 
+  # Photos chosen in the edit form join the ones on file. Assigning them would
+  # replace the whole set, and leaving the field empty keeps it as it was.
   def update
-    if @repair.update(repair_params)
+    attributes = repair_params
+    new_photos = Array(attributes.delete(:intake_photos)).compact_blank
+    @repair.assign_attributes(attributes)
+    @repair.intake_photos = @repair.intake_photos.blobs + new_photos if new_photos.any?
+
+    if @repair.save
       redirect_to catalog_repair_path(@repair), notice: "Repair ##{@repair.id} for bike #{@repair.bike.serial_number} was updated."
     else
+      @intake_photos = @repair.intake_photos_attachments
       add_blank_lines
       render :edit, status: :unprocessable_content
     end
@@ -55,7 +66,7 @@ class Catalog::RepairsController < ApplicationController
   private
 
   def set_repair
-    @repair = Repair.find(params[:id])
+    @repair = Repair.with_attached_intake_photos.with_rich_text_diagnosis_and_embeds.find(params[:id])
   end
 
   def add_blank_lines
@@ -65,6 +76,7 @@ class Catalog::RepairsController < ApplicationController
   def repair_params
     params.expect(repair: [
       :bike_id, :mechanic_id, :status, :reported_problem, :diagnosis, :promised_on, :handed_back_at,
+      intake_photos: [],
       repair_line_items_attributes: [ [ :id, :service_id, :charged_price, :_destroy ] ]
     ])
   end

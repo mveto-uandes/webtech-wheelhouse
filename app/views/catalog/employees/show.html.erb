@@ -17,24 +17,7 @@
 
 <h2 class="h4 mt-4">Repairs assigned</h2>
 <% if @repairs.any? %>
-  <table class="table table-striped align-middle">
-    <thead>
-      <tr>
-        <th>Status</th>
-        <th>Promised</th>
-        <th>Bike</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @repairs.each do |repair| %>
-        <tr>
-          <td><%= link_to repair.status.titleize, catalog_repair_path(repair) %></td>
-          <td><%= repair.promised_on&.to_fs(:long) || "—" %></td>
-          <td><%= link_to "#{repair.bike.make} #{repair.bike.model}", catalog_bike_path(repair.bike) %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+  <%= render "catalog/repairs/table", repairs: @repairs %>
 <% else %>
   <p class="text-muted">No repairs assigned.</p>
 <% end %>

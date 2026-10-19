@@ -23,13 +23,16 @@ Rails.application.routes.draw do
 
   # Records: full CRUD for what the counter manages (Lab 8). Repair line items
   # have no routes of their own; they're written through the repair's form.
-  # Payments stay read-only.
+  # Payments stay read-only. An intake photo is only ever removed on its own
+  # (Lab 9); it's added through the repair's form.
   namespace :catalog do
     resources :customers
     resources :bikes
     resources :employees
     resources :services
-    resources :repairs
+    resources :repairs do
+      resources :intake_photos, only: :destroy
+    end
     resources :payments, only: [ :index, :show ]
   end
 end

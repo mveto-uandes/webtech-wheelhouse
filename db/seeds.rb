@@ -126,19 +126,26 @@ end
 #
 # services: list of [service_name, charged_price_or_nil] — nil means "charge the
 # current list price".
+#
+# photos: files in db/seeds/ attached as intake photos (credits in
+# db/seeds/CREDITS.md). The same file can go on several repairs; each one gets
+# its own copy. diagnosis: rich text, written as the HTML the editor produces.
 
 today = Date.current
+seed_photos = Rails.root.join("db/seeds")
 
 REPAIRS = [
   # received — just dropped off, nothing quoted yet
   {
     bike: "TRK-FX2-1001", mechanic: nil, status: "received",
     reported_problem: "Back wheel rubs the frame and makes a ticking noise while pedaling.",
+    photos: %w[rear-dropout.jpg chain-guard.jpg],
     days_ago: 1, promised_days_from_drop: nil, services: []
   },
   {
     bike: "GNT-TAL-7001", mechanic: nil, status: "received",
     reported_problem: "Chain skips under load, especially climbing.",
+    photos: %w[chainrings.jpg],
     days_ago: 0, promised_days_from_drop: nil, services: []
   },
 
@@ -146,11 +153,13 @@ REPAIRS = [
   {
     bike: "SPZ-SIRX-3001", mechanic: "Marco Ibáñez", status: "diagnosing",
     reported_problem: "Front brake feels spongy and doesn't stop the bike quickly.",
+    photos: %w[workstand.jpg],
     days_ago: 2, promised_days_from_drop: nil, services: []
   },
   {
     bike: "MER-CRW-9001", mechanic: "Valentina Rojas", status: "diagnosing",
     reported_problem: "Clicking sound from the bottom bracket area on every pedal stroke.",
+    photos: %w[bottom-bracket.jpg crankset.jpg],
     days_ago: 1, promised_days_from_drop: nil, services: []
   },
 
@@ -158,7 +167,8 @@ REPAIRS = [
   {
     bike: "CAN-Q4-4001", mechanic: "Diego Fuentes", status: "quoted",
     reported_problem: "Rear derailleur won't shift into the two lowest gears.",
-    diagnosis: "Derailleur hanger bent; needs straightening and a cable adjustment.",
+    photos: %w[rear-dropout.jpg chainrings.jpg crankset.jpg],
+    diagnosis: "<div><strong>Derailleur hanger bent</strong> inward, so the derailleur can't reach the two biggest cogs.</div><ul><li>Straighten the hanger</li><li>Adjust the shift cable tension</li></ul>",
     days_ago: 3, promised_days_from_drop: 4,
     services: [ [ "Rear derailleur hanger straightening", nil ], [ "Gear/derailleur adjustment", nil ] ]
   },
@@ -167,7 +177,8 @@ REPAIRS = [
   {
     bike: "TRK-DOM-5001", mechanic: "Marco Ibáñez", status: "approved",
     reported_problem: "Both tires are worn smooth and the owner wants tubes checked too.",
-    diagnosis: "Tires worn past the wear indicators; tubes are fine.",
+    photos: %w[chain-off.jpg],
+    diagnosis: "<div>Both tires are <strong>worn past the wear indicators</strong>. The tubes hold air and can stay.</div><ul><li>Fit two new tires</li><li>Safety check before hand-back</li></ul>",
     days_ago: 4, promised_days_from_drop: 3,
     services: [ [ "Flat tire repair", nil ], [ "Safety inspection", nil ] ]
   },
@@ -176,7 +187,8 @@ REPAIRS = [
   {
     bike: "SCT-SBX-6001", mechanic: "Valentina Rojas", status: "declined",
     reported_problem: "Full drivetrain is worn out and grinding in every gear.",
-    diagnosis: "Chain, cassette and chainrings all need replacing; recommended a full drivetrain overhaul.",
+    photos: %w[chainrings.jpg crankset.jpg chain-guard.jpg chain-case.jpg bottom-bracket.jpg],
+    diagnosis: "<div><strong>Whole drivetrain worn out.</strong> The chain is stretched past 0.75% and has worn the cogs with it.</div><ul><li>New chain</li><li>New cassette</li><li>New chainrings</li></ul><blockquote>Customer said the price is too high for an old bike.</blockquote>",
     days_ago: 6, promised_days_from_drop: nil,
     services: []
   },
@@ -185,7 +197,8 @@ REPAIRS = [
   {
     bike: "OXF-BA25-8001", mechanic: "Diego Fuentes", status: "in_repair",
     reported_problem: "Both brakes squeal and barely slow the bike down on hills.",
-    diagnosis: "Brake pads glazed and cables stretched.",
+    photos: %w[workstand.jpg chain-case.jpg],
+    diagnosis: "<div><strong>Brake pads glazed</strong> and both brake cables stretched.</div><ol><li>Replace front and rear pads</li><li>Replace both brake cables</li><li>Test on the hill behind the shop</li></ol>",
     days_ago: 2, promised_days_from_drop: 2,
     services: [ [ "Brake pad replacement", nil ], [ "Cable replacement (brake or shifter)", nil ] ]
   },
@@ -194,7 +207,8 @@ REPAIRS = [
   {
     bike: "TRK-MAR-1101", mechanic: "Marco Ibáñez", status: "ready_for_pickup",
     reported_problem: "Annual tune-up before the riding season starts.",
-    diagnosis: "Standard wear on cables and chain; recommended a full tune-up.",
+    photos: %w[chain-off.jpg],
+    diagnosis: "<div>Ordinary wear for a season of riding. <strong>Full tune-up</strong> recommended.</div><ul><li>Cables and housing</li><li>Chain cleaned and lubed</li><li>Gears and brakes adjusted</li></ul>",
     days_ago: 5, promised_days_from_drop: 3,
     services: [ [ "Tune-up (full)", nil ] ]
   },
@@ -203,7 +217,8 @@ REPAIRS = [
   {
     bike: "GNT-ESC2-2001", mechanic: "Valentina Rojas", status: "in_repair",
     reported_problem: "Wheel is badly out of true and rubs the brake pad on every rotation.",
-    diagnosis: "Several spokes loose; wheel needs truing and one spoke replaced.",
+    photos: %w[rear-dropout.jpg workstand.jpg],
+    diagnosis: "<div><strong>Rear wheel out of true</strong>: several spokes are loose and one is cracked at the nipple.</div><ul><li>Replace the cracked spoke</li><li>True and tension the wheel</li></ul>",
     days_ago: 10, promised_days_from_drop: 3,
     services: [ [ "Wheel truing", nil ], [ "Spoke replacement (single)", nil ] ]
   },
@@ -212,7 +227,8 @@ REPAIRS = [
   {
     bike: "GNT-ESC2-2002", mechanic: "Marco Ibáñez", status: "completed",
     reported_problem: "Flat rear tire, needs a quick patch before an errand this afternoon.",
-    diagnosis: "Small puncture from a thorn; patched the tube.",
+    photos: %w[chain-guard.jpg],
+    diagnosis: "<div><strong>Thorn puncture</strong> in the rear tube. The tire itself is fine.</div><ul><li>Patch the tube</li><li>Check the tire for more thorns</li></ul>",
     days_ago: 0, promised_days_from_drop: 0, handed_back_same_day: true,
     services: [ [ "Flat tire repair", nil ] ]
   },
@@ -221,7 +237,8 @@ REPAIRS = [
   {
     bike: "TRK-MAR-1102", mechanic: "Diego Fuentes", status: "completed",
     reported_problem: "New bike setup: pedals, kickstand and a rear rack for commuting.",
-    diagnosis: "No issues found; straightforward accessory install.",
+    photos: %w[crankset.jpg],
+    diagnosis: "<div><strong>No problems found.</strong> The bike is new; only accessories to fit.</div><ul><li>Pedals</li><li>Kickstand</li><li>Rear rack</li></ul>",
     days_ago: 12, promised_days_from_drop: 2, handed_back_days_after_promise: 0,
     services: [ [ "Pedal installation", 5.00 ], [ "Kickstand installation", nil ], [ "Rack installation", nil ] ]
   },
@@ -230,7 +247,7 @@ REPAIRS = [
   {
     bike: "TRK-MAR-1102", mechanic: "Valentina Rojas", status: "completed",
     reported_problem: "Handlebar tape is torn and the grip feels loose.",
-    diagnosis: "Tape worn through from commuting; replacing tape and checking headset.",
+    diagnosis: "<div><strong>Bar tape worn through</strong> on both sides, and the headset has a little play.</div><ul><li>New handlebar tape</li><li>Adjust the headset</li></ul>",
     days_ago: 30, promised_days_from_drop: 2, handed_back_days_after_promise: 0,
     services: [ [ "Handlebar tape replacement", nil ], [ "Headset adjustment", nil ] ]
   },
@@ -239,7 +256,8 @@ REPAIRS = [
   {
     bike: "MER-CRW-9001", mechanic: "Diego Fuentes", status: "completed",
     reported_problem: "Basic tune-up requested before a weekend trip.",
-    diagnosis: "Minor cable stretch and a dry chain; standard tune-up covers it.",
+    photos: %w[chain-case.jpg],
+    diagnosis: "<div>Minor cable stretch and a <strong>dry chain</strong>. A basic tune-up covers it.</div><ul><li>Lube the chain</li><li>Take up cable slack</li></ul>",
     days_ago: 20, promised_days_from_drop: 2, handed_back_days_after_promise: 0,
     services: [ [ "Tune-up (basic)", nil ] ]
   },
@@ -249,7 +267,7 @@ REPAIRS = [
   {
     bike: "GNT-ESC2-2001", mechanic: "Marco Ibáñez", status: "completed",
     reported_problem: "Full tune-up and new brake pads before winter storage.",
-    diagnosis: "Cables, chain and brake pads all due for replacement.",
+    diagnosis: "<div><strong>Due for a full service</strong> before winter storage.</div><ul><li>Cables</li><li>Chain</li><li>Brake pads</li></ul>",
     exact_date: Date.new(today.year - 1, 11, 15), promised_days_from_drop: 4, handed_back_days_after_promise: 0,
     services: [ [ "Tune-up (full)", 75.00 ], [ "Brake pad replacement", 25.00 ] ]
   },
@@ -258,7 +276,7 @@ REPAIRS = [
   {
     bike: "SPZ-SIRX-3001", mechanic: "Valentina Rojas", status: "completed",
     reported_problem: "Wheel replacement after a pothole bent the rim beyond truing.",
-    diagnosis: "Rim cracked near a spoke hole; wheel is not repairable, needs replacing.",
+    diagnosis: "<div><strong>Rim cracked</strong> next to a spoke hole after the pothole. It can't be trued safely.</div><ul><li>Replace the front wheel</li></ul><div>See <a href=\"https://www.sheldonbrown.com/rim-wear.html\">Sheldon Brown on rim wear</a>.</div>",
     exact_date: Date.new(today.year - 1, 6, 3), promised_days_from_drop: 5, handed_back_days_after_promise: 0,
     services: [ [ "Wheel replacement", 58.00 ] ]
   },
@@ -267,7 +285,7 @@ REPAIRS = [
   {
     bike: "TRK-FX2-1001", mechanic: "Diego Fuentes", status: "declined",
     reported_problem: "Suspicious creak from the fork every time the front brake is used.",
-    diagnosis: "Fork seals worn and leaking; recommended a fork seal service.",
+    diagnosis: "<div><strong>Fork seals worn</strong> and leaking oil onto the stanchions.</div><ul><li>Fork seal service</li><li>New oil</li></ul>",
     days_ago: 15, promised_days_from_drop: nil,
     services: []
   }
@@ -306,7 +324,7 @@ REPAIRS.each do |attrs|
   ) do |r|
     r.mechanic_id = mechanic&.id
     r.status = attrs[:status]
-    r.diagnosis = attrs[:diagnosis]
+    r.diagnosis = attrs[:diagnosis] if attrs[:diagnosis]
     r.promised_on = promised_on
     r.handed_back_at = handed_back_at
     r.created_at = created_on.to_time + 9.hours
@@ -318,9 +336,17 @@ REPAIRS.each do |attrs|
       service = services_by_name.fetch(service_name)
       r.repair_line_items.build(service: service, charged_price: override_price || service.price)
     end
+
+    # Attached inside the block, so a repair that already exists keeps the
+    # photos it has and a second run adds none.
+    attrs.fetch(:photos, []).each do |filename|
+      r.intake_photos.attach(io: File.open(seed_photos.join(filename), "rb"), filename: filename)
+    end
   end
 end
 
 puts "Seeded #{Service.count} services, #{Employee.count} employees, " \
      "#{Customer.count} customers, #{Bike.count} bikes, #{Repair.count} repairs, " \
-     "#{RepairLineItem.count} repair line items."
+     "#{RepairLineItem.count} repair line items, " \
+     "#{ActiveStorage::Attachment.where(record_type: "Repair").count} intake photos, " \
+     "#{ActionText::RichText.where(record_type: "Repair").count} diagnoses."
