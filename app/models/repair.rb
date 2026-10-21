@@ -62,6 +62,17 @@ class Repair < ApplicationRecord
     repair_line_items.sum(&:charged_price)
   end
 
+  # What the customer said to the quote, named as the lifecycle names it:
+  # approved from the approval on, declined if they said no, and nil while the
+  # quote hasn't been answered.
+  def customer_answer
+    if declined?
+      self.class.statuses[:declined]
+    elsif approved? || in_repair? || ready_for_pickup? || completed?
+      self.class.statuses[:approved]
+    end
+  end
+
   private
 
   # Only the photos this save would add are checked; the ones on file passed

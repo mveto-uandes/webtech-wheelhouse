@@ -62,3 +62,42 @@ It was a `text` column on `repairs`. It's now rich text stored by Action Text. A
 
 **Why is the editor's attach button hidden?**
 A file attached inside the diagnosis would skip the type and size rules of the intake photos. Photos go in the "Intake photos" field, where they're checked.
+
+## Lab 10: the JSON API
+
+**How does a price travel?**
+As a string with two decimals: `"8000.00"`. The column is an exact decimal, and a JSON number becomes a floating-point number in most clients, JavaScript included, which can't hold every amount exactly. A string carries the same digits the database has. The page turns it into a number only to format it. This applies to every price in the API: a service's price, a line's charged price and a repair's total.
+
+**Why are the prices in pesos now?**
+The personal page shows prices as Chilean pesos (`$8.000`, no decimals), because that's what a shop here charges in. The seed had prices that looked like dollars (12.00, 45.00), which would have read as `$12` and `$45`. The seed now uses peso amounts, for both the list prices and the hard-coded charged prices of old repairs, keeping the same relationships (an old repair still charged less than today's price). The column stays `decimal(8,2)`, which holds up to 999,999.99. The records pages still print prices with a `$` and two decimals: Lab 10 says the pages don't change.
+
+**What's the highest price a service can have?**
+999,999.99, the most `decimal(8,2)` holds. Before this lab a bigger price got past the validations and the database refused it with an error page. Now the model refuses it with a sentence ("Price can be at most 999999.99"), on the form and in the API.
+
+**What does "how many repairs the service has been charged on" count?**
+Distinct repairs among the service's lines, so a repair that charged the same service twice counts once. The database counts them in the same query that reads the services (`LEFT JOIN` and `COUNT(DISTINCT ...)`), so the price list is one query however many services and lines there are.
+
+**How is the customer's answer shown?**
+`Repair#customer_answer` turns the state into the lifecycle's words: "approved" from the approval on, "declined" if they said no, and nothing (`null`) while the quote is unanswered. It returns the enum's own values, so no state name is written as a string.
+
+**What does the repair document leave out?**
+The phone, every foreign key, the mechanic, the reported problem and the diagnosis, the photos, the bike's color, the timestamps and the payments. Accounting needs what was charged, to whom, for which bike and when; the reasons for each one are in `docs/api.md`.
+
+**Which routes need the token?**
+The base controller of the API asks for it before every action, and `Api::V1::ServicesController` skips that for `index` and `show`. A new controller of the API needs the token unless it says otherwise, so forgetting a line closes a route instead of opening it.
+
+**What does an unknown path under `/api/v1` answer?**
+A JSON `404`, like a missing record, and so does `/api/v1` itself. Without the catch-all route at the end of the API's routes, Rails would answer with its HTML error page.
+
+**Where are the errors answered?**
+In the base controller, with `rescue_from`: a missing record is a `404`; a body the API can't read, and a `state` filter that isn't a state, are a `400`. The repairs controller doesn't render the filter's error itself: it raises `ActionController::BadRequest` with the message, and the base controller answers it. The `401` comes from the token check, and the `422` from the action that saves, since only it knows the record that failed.
+
+**Why does a service's name drop null bytes?**
+PostgreSQL can't store a null byte in a string, so a name with one (easy to send through the API) made the database raise and the app answer `500`. The name's normalization now removes it, along with the extra spaces it already removed.
+
+**Where does the token live, and how does someone else set theirs?**
+In the encrypted credentials, as `api_token`. Mine is in `config/credentials.yml.enc`, whose key (`config/master.key`) isn't committed. Someone who clones the repository can't decrypt that file, so the README has them create development credentials (`bin/rails credentials:edit --environment development`), which Rails reads instead of the main file in development. `.gitignore` already ignores the key that command creates.
+
+**Which origins can read the API?**
+The published personal page and `http://localhost:8000`, only with `GET`, and only the price list. The page doesn't use the token, so the routes that need it aren't opened to any origin.
+

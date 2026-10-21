@@ -61,6 +61,8 @@ en:
           attributes:
             name:
               taken: "is already on the price list"
+            price:
+              less_than: "can be at most 999999.99"
           restrict_dependent_destroy:
             has_many: "This service has been charged on a repair, so it can't be deleted."
         repair:

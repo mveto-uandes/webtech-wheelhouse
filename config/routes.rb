@@ -35,4 +35,14 @@ Rails.application.routes.draw do
     end
     resources :payments, only: [ :index, :show ]
   end
+
+  # The JSON API (Lab 10). Programs don't need forms, so there's no new or edit.
+  # Any other path under /api/v1 answers a JSON 404 instead of the HTML page.
+  namespace :api, defaults: { format: :json } do
+    namespace :v1 do
+      resources :services, only: [ :index, :show, :create ]
+      resources :repairs, only: [ :index, :show ]
+      match "(*path)", to: "base#route_not_found", via: :all
+    end
+  end
 end

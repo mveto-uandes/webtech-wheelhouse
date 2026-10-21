@@ -5,34 +5,36 @@
 # ---------------------------------------------------------------------------
 # Services (the wall price list)
 # ---------------------------------------------------------------------------
+# Prices are in Chilean pesos. The shop charges whole pesos, but the column
+# keeps two decimals.
 
 SERVICES = [
-  { name: "Flat tire repair", price: 12.00 },
-  { name: "Tune-up (basic)", price: 45.00 },
-  { name: "Tune-up (full)", price: 85.00 },
-  { name: "Brake adjustment", price: 20.00 },
-  { name: "Brake pad replacement", price: 30.00 },
-  { name: "Gear/derailleur adjustment", price: 25.00 },
-  { name: "Wheel truing", price: 22.00 },
-  { name: "Chain replacement", price: 28.00 },
-  { name: "Wheel replacement", price: 65.00 },
-  { name: "Bearing overhaul (hubs/bottom bracket)", price: 55.00 },
-  { name: "New bike assembly", price: 40.00 },
-  { name: "Safety inspection", price: 15.00 },
-  { name: "Cable replacement (brake or shifter)", price: 18.00 },
-  { name: "Handlebar tape replacement", price: 16.00 },
-  { name: "Headset adjustment", price: 24.00 },
-  { name: "Headset overhaul", price: 48.00 },
-  { name: "Bottom bracket replacement", price: 60.00 },
-  { name: "Fork seal service", price: 70.00 },
-  { name: "Rear derailleur hanger straightening", price: 14.00 },
-  { name: "Spoke replacement (single)", price: 10.00 },
-  { name: "Tubeless conversion", price: 38.00 },
-  { name: "Pedal installation", price: 8.00 },
-  { name: "Kickstand installation", price: 10.00 },
-  { name: "Fender installation", price: 20.00 },
-  { name: "Rack installation", price: 25.00 },
-  { name: "Full bike detailing", price: 35.00 }
+  { name: "Flat tire repair", price: 8_000.00 },
+  { name: "Tune-up (basic)", price: 35_000.00 },
+  { name: "Tune-up (full)", price: 65_000.00 },
+  { name: "Brake adjustment", price: 12_000.00 },
+  { name: "Brake pad replacement", price: 18_000.00 },
+  { name: "Gear/derailleur adjustment", price: 15_000.00 },
+  { name: "Wheel truing", price: 15_000.00 },
+  { name: "Chain replacement", price: 20_000.00 },
+  { name: "Wheel replacement", price: 45_000.00 },
+  { name: "Bearing overhaul (hubs/bottom bracket)", price: 40_000.00 },
+  { name: "New bike assembly", price: 30_000.00 },
+  { name: "Safety inspection", price: 10_000.00 },
+  { name: "Cable replacement (brake or shifter)", price: 12_000.00 },
+  { name: "Handlebar tape replacement", price: 12_000.00 },
+  { name: "Headset adjustment", price: 15_000.00 },
+  { name: "Headset overhaul", price: 35_000.00 },
+  { name: "Bottom bracket replacement", price: 40_000.00 },
+  { name: "Fork seal service", price: 55_000.00 },
+  { name: "Rear derailleur hanger straightening", price: 10_000.00 },
+  { name: "Spoke replacement (single)", price: 6_000.00 },
+  { name: "Tubeless conversion", price: 28_000.00 },
+  { name: "Pedal installation", price: 5_000.00 },
+  { name: "Kickstand installation", price: 6_000.00 },
+  { name: "Fender installation", price: 12_000.00 },
+  { name: "Rack installation", price: 15_000.00 },
+  { name: "Full bike detailing", price: 25_000.00 }
 ].freeze
 
 services_by_name = {}
@@ -240,7 +242,7 @@ REPAIRS = [
     photos: %w[crankset.jpg],
     diagnosis: "<div><strong>No problems found.</strong> The bike is new; only accessories to fit.</div><ul><li>Pedals</li><li>Kickstand</li><li>Rear rack</li></ul>",
     days_ago: 12, promised_days_from_drop: 2, handed_back_days_after_promise: 0,
-    services: [ [ "Pedal installation", 5.00 ], [ "Kickstand installation", nil ], [ "Rack installation", nil ] ]
+    services: [ [ "Pedal installation", 3_000.00 ], [ "Kickstand installation", nil ], [ "Rack installation", nil ] ]
   },
 
   # completed, second repair on the same bike as the one above (different dates)
@@ -269,7 +271,7 @@ REPAIRS = [
     reported_problem: "Full tune-up and new brake pads before winter storage.",
     diagnosis: "<div><strong>Due for a full service</strong> before winter storage.</div><ul><li>Cables</li><li>Chain</li><li>Brake pads</li></ul>",
     exact_date: Date.new(today.year - 1, 11, 15), promised_days_from_drop: 4, handed_back_days_after_promise: 0,
-    services: [ [ "Tune-up (full)", 75.00 ], [ "Brake pad replacement", 25.00 ] ]
+    services: [ [ "Tune-up (full)", 58_000.00 ], [ "Brake pad replacement", 15_000.00 ] ]
   },
 
   # completed, another historical repair, same idea, different bike/date
@@ -278,7 +280,7 @@ REPAIRS = [
     reported_problem: "Wheel replacement after a pothole bent the rim beyond truing.",
     diagnosis: "<div><strong>Rim cracked</strong> next to a spoke hole after the pothole. It can't be trued safely.</div><ul><li>Replace the front wheel</li></ul><div>See <a href=\"https://www.sheldonbrown.com/rim-wear.html\">Sheldon Brown on rim wear</a>.</div>",
     exact_date: Date.new(today.year - 1, 6, 3), promised_days_from_drop: 5, handed_back_days_after_promise: 0,
-    services: [ [ "Wheel replacement", 58.00 ] ]
+    services: [ [ "Wheel replacement", 40_000.00 ] ]
   },
 
   # declined, second example, to round out coverage with a different bike/mechanic
