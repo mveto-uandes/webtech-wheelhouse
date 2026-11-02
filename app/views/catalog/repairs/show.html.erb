@@ -27,6 +27,9 @@
     <%= @repair.mechanic ? link_to(@repair.mechanic.name, catalog_employee_path(@repair.mechanic)) : "Unassigned" %>
   </dd>
 
+  <dt class="col-sm-2">Taken in by</dt>
+  <dd class="col-sm-10"><%= taken_in_by(@repair) %></dd>
+
   <dt class="col-sm-2">Reported problem</dt>
   <dd class="col-sm-10"><%= @repair.reported_problem %></dd>
 

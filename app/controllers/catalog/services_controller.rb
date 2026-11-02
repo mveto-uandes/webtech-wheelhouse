@@ -1,4 +1,6 @@
 class Catalog::ServicesController < ApplicationController
+  # Anyone can read the services; changing them needs a session.
+  allow_unauthenticated_access only: %i[index show]
   before_action :set_service, only: %i[show edit update destroy]
 
   def index

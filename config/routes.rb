@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  # Accounts (Lab 11): signing in and out, a forgotten password, signing up.
+  resource :session, only: [ :new, :create, :destroy ]
+  resources :passwords, param: :token
+  resource :registration, only: [ :new, :create ], path: "sign_up"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

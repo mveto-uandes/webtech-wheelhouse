@@ -101,3 +101,48 @@ In the encrypted credentials, as `api_token`. Mine is in `config/credentials.yml
 **Which origins can read the API?**
 The published personal page and `http://localhost:8000`, only with `GET`, and only the price list. The page doesn't use the token, so the routes that need it aren't opened to any origin.
 
+## Lab 11: accounts for the workshop
+
+**Which role is the default, and why mechanic?**
+The default has to be the role that can do the least. In the workshop, the owner runs everything: the price list, the staff, the money. The person at the counter talks to customers: takes the bikes in, has their names and phones, gives the quote and takes the payment. A mechanic works on the bike: reads the repair, writes the diagnosis and moves it along. The mechanic doesn't need the customers' phones, the price list or the payments, so mechanic is the role with the fewest permissions, and a new account starts there. The owner gives someone `counter` or `owner` from the console. (The roles don't close any page yet; every signed-in account sees the same pages. The role is recorded so they can.)
+
+**Why isn't the default `counter`, since the counter is who signs up most?**
+Because a default that turns out too small is fixed by the owner in one line, and a default that turns out too big gives a stranger who signed up the customers' phone numbers.
+
+**How is an email address unique without regard to case?**
+Twice. The model stores it stripped and lowercased (the generator's `normalizes`) and validates uniqueness case-insensitively, which gives the sentence on the form. The database has a unique index on `lower(email_address)` instead of the generator's index on the column, so a row written around the model (SQL, `insert_all`) with `Ana@Wheelhouse.cl` is refused too.
+
+**Why 10 characters?**
+The lab's minimum, and enough that a word or a date isn't a password. The maximum is bcrypt's 72 bytes, which `has_secure_password` already checks. The message says the number: "Password must be at least 10 characters long". `User::PASSWORD_MIN_LENGTH` is the one place it's written; the forms read it for their hint.
+
+**What changed in the generated code?**
+The files stay where the generator put them; their views were rewritten with Bootstrap and the application's layout. Behavior changes, all in the generated controllers:
+
+- A failed sign-in renders the form again with `422` and the address kept, like any refused form, instead of redirecting. The message is the same for a wrong address and a wrong password.
+- The password form refuses a blank password. `has_secure_password` ignores a blank one, so the generated code answered "Password has been reset" and changed nothing. A refused new password renders the form with `422` and the messages next to the fields instead of redirecting with one sentence.
+- `PasswordsController` lists its open actions by name instead of opening the whole controller, and `resource :session` only has the three actions it uses, so `GET /session` is a `404`, not an error.
+- The messages are worded for the workshop, and the reset email says it's from Wheelhouse.
+
+The rate limit on signing in (10 tries in 3 minutes) is the generator's and stays. The sign-up and the password request have the same limit.
+
+**Which pages are open, and where is that said?**
+`ApplicationController` includes the generator's `Authentication`, so every page asks for a session. Each open page is opened in its own controller, by action: `ShopController` opens `services`, `Catalog::ServicesController` opens `index` and `show`, and the sessions, passwords and registrations controllers open the actions a visitor needs. The home, visiting and about pages are closed: the owner said nothing but the price list is public. The API isn't affected: its controllers inherit from `ActionController::API`, not from `ApplicationController`.
+
+**What does a visitor see on the open pages?**
+The navbar has the price list and "Sign in", and the logo goes to the price list. A service's page shows its price but not the repairs that charged it, since those link to closed pages. The New/Edit/Delete buttons only show to someone signed in.
+
+**Why can't sign-up choose a role?**
+Its permitted list is `email_address`, `password` and `password_confirmation`. A hand-written `user[role]=owner` or `user[employee_id]=1` is dropped by `params.expect`, and the account gets the default role and no staff member. No page lists, edits or deletes accounts.
+
+**Who took the repair in, and why can it be empty?**
+`repairs.taken_in_by_id` references `users`. `create` sets it from `Current.user`; it's not in the form or the permitted list, and `update` never touches it, so an edit by someone else keeps the original. It allows `NULL` for repairs from before accounts existed. In the seed, the two repairs from last year have nobody. If an account is ever deleted (only from the console), its repairs keep their history with nobody (`dependent: :nullify`).
+
+**Why can't a staff member with an account be removed?**
+The account would be left pointing at nobody, and the person could still sign in. `Employee has_one :user, dependent: :restrict_with_error` refuses it, and the refusal shows on the staff member's page like every other refused delete. It's declared before `has_many :repairs`, so the check runs before their repairs would be unassigned.
+
+**How do emails leave, and where do they go?**
+Both emails go through `deliver_later`, so a job sends them after the page has answered. In development the job runs in the app's own process (Active Job's default adapter), so there's no queue to start. Action Mailer writes each email to `tmp/mails/<address>` (`delivery_method = :file`) instead of handing it to a mail server, and `raise_delivery_errors` is on, so an email that can't be written is an error in the log rather than silence. No provider, SMTP server or credential is involved. The emails' text is plain ASCII, so the file holds the link exactly as it should be copied.
+
+**What does the navbar cost?**
+Three queries on every page for someone signed in: the session, the account and its staff member. The lists of repairs also preload who took each repair in (two queries), so the counts stay fixed whatever the number of repairs or accounts.
+

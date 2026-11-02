@@ -1,4 +1,7 @@
 class ShopController < ApplicationController
+  # The wall price list is the only public page of the shop.
+  allow_unauthenticated_access only: :services
+
   def home
   end
 

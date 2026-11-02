@@ -14,6 +14,9 @@ en:
       employee:
         one: "Staff member"
         other: "Staff"
+      user:
+        one: "account"
+        other: "accounts"
     attributes:
       bike:
         customer: "Owner"
@@ -24,6 +27,7 @@ en:
         bike_id: "Bike"
         mechanic: "Mechanic"
         mechanic_id: "Mechanic"
+        taken_in_by: "Taken in by"
         status: "State"
         reported_problem: "Reported problem"
         promised_on: "Promised day"
@@ -39,6 +43,13 @@ en:
         repair: "Repair"
         service: "Service"
         charged_price: "Charged price"
+      user:
+        email_address: "Email address"
+        password: "Password"
+        password_confirmation: "Password confirmation"
+        employee: "Staff member"
+        employee_id: "Staff member"
+        role: "Role"
       payment:
         repair: "Repair"
         method: "Payment method"
@@ -48,6 +59,20 @@ en:
         required: "must be chosen"
         greater_than: "must be more than %{count}"
       models:
+        user:
+          attributes:
+            email_address:
+              taken: "already has an account"
+              invalid: "doesn't look like an email address"
+            password:
+              too_short: "must be at least %{count} characters long"
+            password_confirmation:
+              confirmation: "doesn't match the password"
+            employee_id:
+              taken: "already has an account"
+        employee:
+          restrict_dependent_destroy:
+            has_one: "This staff member has an account to sign in with, so they can't be removed."
         customer:
           restrict_dependent_destroy:
             has_many: "This customer still has bikes on file, so they can't be deleted."

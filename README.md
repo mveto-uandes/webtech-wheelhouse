@@ -1,8 +1,9 @@
 # Wheelhouse
 
-Wheelhouse is the site of a bike repair shop. Its public pages show what the shop does, its price
-list, how to visit and who runs it. Its records pages (under **Records** in the navbar) let the
-counter keep track of customers, bikes, staff, services and repairs. A repair carries the photos
+Wheelhouse is the site of a bike repair shop. The people of the workshop sign in with an email
+address and a password; anyone else sees only the price list. Signed in, the shop's pages show what
+it does, how to visit and who runs it, and its records pages (under **Records** in the navbar) keep
+track of customers, bikes, staff, services and repairs. A repair carries the photos
 taken when the bike came in and the mechanic's diagnosis, written as formatted text.
 
 See `docs/` for the specification this app was built from:
@@ -48,7 +49,8 @@ npm run build:css
 bin/rails db:create db:migrate db:seed
 ```
 
-The seed loads services (priced in Chilean pesos), staff, customers, bikes and 17 repairs. 13 of them have intake photos and a
+The seed loads services (priced in Chilean pesos), staff, their accounts (see
+[Signing in](#signing-in)), customers, bikes and 17 repairs. 13 of them have intake photos and a
 diagnosis. The photos come from `db/seeds/` (their authors and licenses are in
 [`db/seeds/CREDITS.md`](db/seeds/CREDITS.md)). It's safe to run `bin/rails db:seed` again: it adds
 nothing that's already there.
@@ -61,13 +63,62 @@ To start over from an empty database: `bin/rails db:drop db:create db:migrate db
 bin/dev
 ```
 
-Then visit `http://localhost:3000`. The repairs list is at
+Then visit `http://localhost:3000`. It asks you to sign in: use one of the accounts below. The
+repairs list is at
 `http://localhost:3000/catalog/repairs`, and each repair with photos shows a thumbnail. The first
 time a thumbnail is shown, libvips makes it, so the first page load is a little slower.
 
+## Signing in
+
+Every page asks for a session except the price list (`/services`, and the service pages under
+**Records → Service Catalog**), the sign-in page, the sign-up page and the pages of a forgotten
+password. A page you ask for before signing in opens right after you sign in.
+
+The seed creates these accounts. **They exist only in development**, in the database the seed
+fills on your computer; don't use these passwords anywhere else.
+
+| Email address | Password | Role | Staff member |
+| --- | --- | --- | --- |
+| `matias@wheelhouse.cl` | `matias-owner-2026` | owner | Matías Veto |
+| `camila@wheelhouse.cl` | `camila-counter-2026` | counter | Camila Soto |
+| `marco@wheelhouse.cl` | `marco-mechanic-2026` | mechanic | Marco Ibáñez |
+| `valentina@wheelhouse.cl` | `valentina-mechanic-2026` | mechanic | Valentina Rojas |
+| `diego@wheelhouse.cl` | `diego-mechanic-2026` | mechanic | Diego Fuentes |
+| `trainee@wheelhouse.cl` | `trainee-wheelhouse-2026` | mechanic (the default) | none |
+
+Running the seed again doesn't change these passwords, but a password changed through the
+"Forgot your password?" page stays changed until you reset the database.
+
+Anyone can also make an account at **Sign up** (linked from the sign-in page). A new account gets
+the default role, `mechanic`, and belongs to nobody on the staff. Roles and staff members are
+changed from the console, for example:
+
+```
+bin/rails runner 'User.find_by!(email_address: "new@example.com").update!(role: :counter, employee: Employee.find_by!(name: "Camila Soto"))'
+```
+
+## Reading the emails
+
+In development the app never sends an email out: there's no mail server and nothing to configure.
+Each email is **written to a file in `tmp/mails/`**, named after the address it goes to (for
+example `tmp/mails/camila@wheelhouse.cl`). A file holds every email sent to that address, one
+after the other, newest last. The text part is plain text, so the links can be copied from it.
+
+The app sends two emails, from a background job right after the page answers:
+
+- **Welcome**, to a new account made at Sign up.
+- **Choose a new password**, from "Forgot your password?". Copy the link from the file into the
+  browser (the app must be running on port 3000), choose a new password, and sign in with it. The
+  link works once and for 15 minutes.
+
+To see both emails without sending them: `http://localhost:3000/rails/mailers`.
+
+To start with no emails, delete `tmp/mails/`.
+
 ## The JSON API
 
-The app answers JSON under `/api/v1`. Reading the price list is public. Reading repairs and adding a
+The app answers JSON under `/api/v1`. The API doesn't use the accounts or the session: it answers
+the same signed in or not. Reading the price list is public. Reading repairs and adding a
 service need a token. Every route, document and error is described in [`docs/api.md`](docs/api.md).
 
 ### Setting the token

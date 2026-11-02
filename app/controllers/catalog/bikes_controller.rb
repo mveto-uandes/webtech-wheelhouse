@@ -6,7 +6,7 @@ class Catalog::BikesController < ApplicationController
   end
 
   def show
-    @repairs = @bike.repairs.includes(:mechanic, bike: :customer)
+    @repairs = @bike.repairs.includes(:mechanic, { taken_in_by: :employee }, bike: :customer)
       .with_attached_intake_photos.with_rich_text_diagnosis_and_embeds.newest_first
   end
 

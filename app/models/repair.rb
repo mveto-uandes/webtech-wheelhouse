@@ -12,6 +12,9 @@ class Repair < ApplicationRecord
 
   belongs_to :bike
   belongs_to :mechanic, class_name: "Employee", foreign_key: :mechanic_id, optional: true
+  # The account that took the bike in. Set by the controller from the session,
+  # never from the form; repairs from before accounts existed have none.
+  belongs_to :taken_in_by, class_name: "User", optional: true, inverse_of: :taken_in_repairs
 
   has_many :payments, dependent: :restrict_with_error
   has_many :repair_line_items, dependent: :destroy

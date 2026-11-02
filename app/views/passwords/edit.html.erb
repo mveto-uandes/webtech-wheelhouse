@@ -1,0 +1,29 @@
+<% content_for :title, "Choose a new password — Wheelhouse" %>
+
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <h1>Choose a new password</h1>
+    <p class="text-body-secondary">For <%= @user.email_address %>.</p>
+
+    <%= form_with url: password_path(params[:token]), method: :put do |form| %>
+      <%= render "shared/form_errors", object: @user %>
+
+      <div class="mb-3">
+        <%= form.label :password, "New password", class: "form-label" %>
+        <%= form.password_field :password, required: true, autofocus: true, autocomplete: "new-password", maxlength: 72,
+              aria: { describedby: "password_help" }, class: field_class(@user, :password) %>
+        <%= field_errors(@user, :password) %>
+        <div id="password_help" class="form-text">At least <%= User::PASSWORD_MIN_LENGTH %> characters.</div>
+      </div>
+
+      <div class="mb-3">
+        <%= form.label :password_confirmation, "Repeat the new password", class: "form-label" %>
+        <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", maxlength: 72,
+              class: field_class(@user, :password_confirmation) %>
+        <%= field_errors(@user, :password_confirmation) %>
+      </div>
+
+      <%= form.submit "Save the new password", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</div>

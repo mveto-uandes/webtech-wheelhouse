@@ -7,7 +7,7 @@ class Catalog::RepairsController < ApplicationController
   before_action :set_repair, only: %i[show edit update destroy]
 
   def index
-    @repairs = Repair.includes(:mechanic, bike: :customer)
+    @repairs = Repair.includes(:mechanic, { taken_in_by: :employee }, bike: :customer)
       .with_attached_intake_photos.with_rich_text_diagnosis_and_embeds.by_promised_on
   end
 
@@ -23,8 +23,10 @@ class Catalog::RepairsController < ApplicationController
     add_blank_lines
   end
 
+  # Whoever is signed in took the bike in; the form has no say in it.
   def create
     @repair = Repair.new(repair_params)
+    @repair.taken_in_by = Current.user
     if @repair.save
       redirect_to catalog_repair_path(@repair), notice: "Repair ##{@repair.id} for bike #{@repair.bike.serial_number} was taken in."
     else
@@ -66,7 +68,7 @@ class Catalog::RepairsController < ApplicationController
   private
 
   def set_repair
-    @repair = Repair.with_attached_intake_photos.with_rich_text_diagnosis_and_embeds.find(params[:id])
+    @repair = Repair.includes(taken_in_by: :employee).with_attached_intake_photos.with_rich_text_diagnosis_and_embeds.find(params[:id])
   end
 
   def add_blank_lines

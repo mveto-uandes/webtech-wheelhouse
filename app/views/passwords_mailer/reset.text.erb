@@ -1,0 +1,11 @@
+Wheelhouse
+
+Someone asked to choose a new password for the Wheelhouse account <%= @user.email_address %>.
+
+Choose a new password here:
+<%= edit_password_url(@user.password_reset_token) %>
+
+The link works once, for <%= distance_of_time_in_words(0, @user.password_reset_token_expires_in) %>.
+If you didn't ask for it, ignore this email: your password stays the same.
+
+Wheelhouse, the bike repair workshop

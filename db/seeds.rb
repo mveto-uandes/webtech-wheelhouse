@@ -49,6 +49,7 @@ end
 # ---------------------------------------------------------------------------
 
 EMPLOYEES = [
+  { name: "Matías Veto", role: "owner" },
   { name: "Marco Ibáñez", role: "mechanic" },
   { name: "Valentina Rojas", role: "mechanic" },
   { name: "Diego Fuentes", role: "mechanic" },
@@ -62,7 +63,30 @@ EMPLOYEES.each do |attrs|
   end
 end
 
-mechanics = employees_by_name.values_at("Marco Ibáñez", "Valentina Rojas", "Diego Fuentes")
+# ---------------------------------------------------------------------------
+# Accounts (development only; the passwords are listed in the README)
+# ---------------------------------------------------------------------------
+# One account for each member of the staff, with that person's role, plus one
+# that belongs to nobody yet and has the default role. The password is only set
+# when the account is created, so a second run leaves every password as it was.
+
+USERS = [
+  { email_address: "matias@wheelhouse.cl", password: "matias-owner-2026", role: "owner", employee: "Matías Veto" },
+  { email_address: "marco@wheelhouse.cl", password: "marco-mechanic-2026", role: "mechanic", employee: "Marco Ibáñez" },
+  { email_address: "valentina@wheelhouse.cl", password: "valentina-mechanic-2026", role: "mechanic", employee: "Valentina Rojas" },
+  { email_address: "diego@wheelhouse.cl", password: "diego-mechanic-2026", role: "mechanic", employee: "Diego Fuentes" },
+  { email_address: "camila@wheelhouse.cl", password: "camila-counter-2026", role: "counter", employee: "Camila Soto" },
+  { email_address: "trainee@wheelhouse.cl", password: "trainee-wheelhouse-2026", employee: nil }
+].freeze
+
+users_by_email = {}
+USERS.each do |attrs|
+  users_by_email[attrs[:email_address]] = User.find_or_create_by!(email_address: attrs[:email_address]) do |u|
+    u.password = attrs[:password]
+    u.role = attrs[:role] if attrs[:role]
+    u.employee = attrs[:employee] && employees_by_name.fetch(attrs[:employee])
+  end
+end
 
 # ---------------------------------------------------------------------------
 # Customers
@@ -132,6 +156,10 @@ end
 # photos: files in db/seeds/ attached as intake photos (credits in
 # db/seeds/CREDITS.md). The same file can go on several repairs; each one gets
 # its own copy. diagnosis: rich text, written as the HTML the editor produces.
+#
+# taken_in_by: the account that took the bike in. Camila, at the counter, unless
+# the entry says otherwise. The two repairs from last year predate the accounts,
+# so they have nobody.
 
 today = Date.current
 seed_photos = Rails.root.join("db/seeds")
@@ -145,7 +173,7 @@ REPAIRS = [
     days_ago: 1, promised_days_from_drop: nil, services: []
   },
   {
-    bike: "GNT-TAL-7001", mechanic: nil, status: "received",
+    bike: "GNT-TAL-7001", mechanic: nil, status: "received", taken_in_by: "matias@wheelhouse.cl",
     reported_problem: "Chain skips under load, especially climbing.",
     photos: %w[chainrings.jpg],
     days_ago: 0, promised_days_from_drop: nil, services: []
@@ -237,7 +265,7 @@ REPAIRS = [
 
   # completed, discounted line item
   {
-    bike: "TRK-MAR-1102", mechanic: "Diego Fuentes", status: "completed",
+    bike: "TRK-MAR-1102", mechanic: "Diego Fuentes", status: "completed", taken_in_by: "matias@wheelhouse.cl",
     reported_problem: "New bike setup: pedals, kickstand and a rear rack for commuting.",
     photos: %w[crankset.jpg],
     diagnosis: "<div><strong>No problems found.</strong> The bike is new; only accessories to fit.</div><ul><li>Pedals</li><li>Kickstand</li><li>Rear rack</li></ul>",
@@ -267,7 +295,7 @@ REPAIRS = [
   # completed, historical repair from before last January — charged prices differ
   # from today's list prices, showing the invoice-from-last-year rule holds.
   {
-    bike: "GNT-ESC2-2001", mechanic: "Marco Ibáñez", status: "completed",
+    bike: "GNT-ESC2-2001", mechanic: "Marco Ibáñez", status: "completed", taken_in_by: nil,
     reported_problem: "Full tune-up and new brake pads before winter storage.",
     diagnosis: "<div><strong>Due for a full service</strong> before winter storage.</div><ul><li>Cables</li><li>Chain</li><li>Brake pads</li></ul>",
     exact_date: Date.new(today.year - 1, 11, 15), promised_days_from_drop: 4, handed_back_days_after_promise: 0,
@@ -276,7 +304,7 @@ REPAIRS = [
 
   # completed, another historical repair, same idea, different bike/date
   {
-    bike: "SPZ-SIRX-3001", mechanic: "Valentina Rojas", status: "completed",
+    bike: "SPZ-SIRX-3001", mechanic: "Valentina Rojas", status: "completed", taken_in_by: nil,
     reported_problem: "Wheel replacement after a pothole bent the rim beyond truing.",
     diagnosis: "<div><strong>Rim cracked</strong> next to a spoke hole after the pothole. It can't be trued safely.</div><ul><li>Replace the front wheel</li></ul><div>See <a href=\"https://www.sheldonbrown.com/rim-wear.html\">Sheldon Brown on rim wear</a>.</div>",
     exact_date: Date.new(today.year - 1, 6, 3), promised_days_from_drop: 5, handed_back_days_after_promise: 0,
@@ -296,6 +324,8 @@ REPAIRS = [
 REPAIRS.each do |attrs|
   bike = bikes_by_serial.fetch(attrs[:bike])
   mechanic = attrs[:mechanic] && employees_by_name.fetch(attrs[:mechanic])
+  taken_in_by_email = attrs.fetch(:taken_in_by, "camila@wheelhouse.cl")
+  taken_in_by = taken_in_by_email && users_by_email.fetch(taken_in_by_email)
 
   created_on =
     if attrs[:exact_date]
@@ -325,6 +355,7 @@ REPAIRS.each do |attrs|
     reported_problem: attrs[:reported_problem]
   ) do |r|
     r.mechanic_id = mechanic&.id
+    r.taken_in_by = taken_in_by
     r.status = attrs[:status]
     r.diagnosis = attrs[:diagnosis] if attrs[:diagnosis]
     r.promised_on = promised_on
@@ -347,7 +378,7 @@ REPAIRS.each do |attrs|
   end
 end
 
-puts "Seeded #{Service.count} services, #{Employee.count} employees, " \
+puts "Seeded #{Service.count} services, #{Employee.count} employees, #{User.count} accounts, " \
      "#{Customer.count} customers, #{Bike.count} bikes, #{Repair.count} repairs, " \
      "#{RepairLineItem.count} repair line items, " \
      "#{ActiveStorage::Attachment.where(record_type: "Repair").count} intake photos, " \
