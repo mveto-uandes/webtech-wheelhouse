@@ -11,6 +11,19 @@ module ApplicationHelper
     object.errors.include?(attribute) ? "#{base} is-invalid" : base
   end
 
+  # Whether this person's policy lets them write the attribute on the record's
+  # form. Fields they can't write aren't drawn at all.
+  def writes?(record, attribute)
+    policy(record).permitted_attributes.any? do |permitted|
+      permitted == attribute || (permitted.is_a?(Hash) && permitted.key?(attribute))
+    end
+  end
+
+  # A record's name, linked to its page only for someone who may open it.
+  def link_if_allowed(text, record, path)
+    policy(record).show? ? link_to(text, path) : text
+  end
+
   # Who took a repair in: the staff member's name (linked), the account's
   # address when it belongs to nobody on the staff, or a dash for old repairs.
   def taken_in_by(repair)

@@ -1,0 +1,15 @@
+<% content_for :title, "Not allowed — Wheelhouse" %>
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <h1>You're not allowed to do that</h1>
+    <p class="lead">
+      Your account can't open this page or make this change. Nothing was changed.
+    </p>
+    <p>
+      If you think you should be able to, ask the owner of the shop.
+      What each role can do is in the shop's permissions list.
+    </p>
+    <%= link_to "Back to Wheelhouse", policy(:shop).home? ? root_path : services_path, class: "btn btn-primary" %>
+  </div>
+</div>

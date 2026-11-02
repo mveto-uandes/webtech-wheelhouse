@@ -9,18 +9,25 @@
   <% if overdue %><span class="badge text-bg-danger">Overdue</span><% end %>
 </h1>
 
-<div class="d-flex gap-2 mb-4">
-  <%= link_to "Edit", edit_catalog_repair_path(@repair), class: "btn btn-outline-primary" %>
-  <%= button_to "Delete", catalog_repair_path(@repair), method: :delete,
-        class: "btn btn-outline-danger", form: { data: { turbo_confirm: "Delete repair ##{@repair.id} for bike #{@repair.bike.serial_number}? This can't be undone." } } %>
-</div>
+<% record_policy = policy(@repair) %>
+<% if record_policy.edit? || record_policy.destroy? %>
+  <div class="d-flex gap-2 mb-4">
+    <% if record_policy.edit? %>
+      <%= link_to "Edit", edit_catalog_repair_path(@repair), class: "btn btn-outline-primary" %>
+    <% end %>
+    <% if record_policy.destroy? %>
+      <%= button_to "Delete", catalog_repair_path(@repair), method: :delete,
+            class: "btn btn-outline-danger", form: { data: { turbo_confirm: "Delete repair ##{@repair.id} for bike #{@repair.bike.serial_number}? This can't be undone." } } %>
+    <% end %>
+  </div>
+<% end %>
 
 <dl class="row">
   <dt class="col-sm-2">Bike</dt>
-  <dd class="col-sm-10"><%= link_to "#{@repair.bike.make} #{@repair.bike.model}", catalog_bike_path(@repair.bike) %></dd>
+  <dd class="col-sm-10"><%= link_if_allowed "#{@repair.bike.make} #{@repair.bike.model}", @repair.bike, catalog_bike_path(@repair.bike) %></dd>
 
   <dt class="col-sm-2">Owner</dt>
-  <dd class="col-sm-10"><%= link_to @repair.bike.customer.name, catalog_customer_path(@repair.bike.customer) %></dd>
+  <dd class="col-sm-10"><%= link_if_allowed @repair.bike.customer.name, @repair.bike.customer, catalog_customer_path(@repair.bike.customer) %></dd>
 
   <dt class="col-sm-2">Mechanic</dt>
   <dd class="col-sm-10">
@@ -80,6 +87,7 @@
   <p class="text-muted">No line items yet.</p>
 <% end %>
 
+<% if policy(Payment).index? %>
 <h2 class="h4 mt-4">Payments</h2>
 <% if @payments.any? %>
   <table class="table table-striped align-middle">
@@ -102,4 +110,5 @@
   </table>
 <% else %>
   <p class="text-muted">No payments recorded.</p>
+<% end %>
 <% end %>

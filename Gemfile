@@ -45,6 +45,9 @@ gem "image_processing", "~> 1.2"
 # Let the personal page read the price list from another origin [https://github.com/cyu/rack-cors]
 gem "rack-cors", "~> 3.0"
 
+# Decide who may do what, one policy per model [https://github.com/varvet/pundit]
+gem "pundit", "~> 2.5"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"

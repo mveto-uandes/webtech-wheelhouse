@@ -1,4 +1,6 @@
 class MockupsController < ApplicationController
+  before_action { authorize :mockup }
+
   def dropoff
   end
 

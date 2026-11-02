@@ -104,7 +104,7 @@ The published personal page and `http://localhost:8000`, only with `GET`, and on
 ## Lab 11: accounts for the workshop
 
 **Which role is the default, and why mechanic?**
-The default has to be the role that can do the least. In the workshop, the owner runs everything: the price list, the staff, the money. The person at the counter talks to customers: takes the bikes in, has their names and phones, gives the quote and takes the payment. A mechanic works on the bike: reads the repair, writes the diagnosis and moves it along. The mechanic doesn't need the customers' phones, the price list or the payments, so mechanic is the role with the fewest permissions, and a new account starts there. The owner gives someone `counter` or `owner` from the console. (The roles don't close any page yet; every signed-in account sees the same pages. The role is recorded so they can.)
+The default has to be the role that can do the least. In the workshop, the owner runs everything: the price list, the staff, the money. The person at the counter talks to customers: takes the bikes in, has their names and phones, gives the quote and takes the payment. A mechanic works on the bike: reads the repair, writes the diagnosis and moves it along. The mechanic doesn't need the customers' phones, the price list or the payments, so mechanic is the role with the fewest permissions, and a new account starts there. The owner gives someone `counter` or `owner` from the console. (Since Lab 12 the roles decide what each account can do; see `docs/permissions.md`.)
 
 **Why isn't the default `counter`, since the counter is who signs up most?**
 Because a default that turns out too small is fixed by the owner in one line, and a default that turns out too big gives a stranger who signed up the customers' phone numbers.
@@ -145,4 +145,64 @@ Both emails go through `deliver_later`, so a job sends them after the page has a
 
 **What does the navbar cost?**
 Three queries on every page for someone signed in: the session, the account and its staff member. The lists of repairs also preload who took each repair in (two queries), so the counts stay fixed whatever the number of repairs or accounts.
+
+## Lab 12: who may do what
+
+The rules are in [`docs/permissions.md`](permissions.md), one table per resource. These are the decisions behind them.
+
+**How is every action checked?**
+`ApplicationController` includes `Pundit::Authorization` and runs `verify_authorized` after every action, and `verify_policy_scoped` after every `index`. An action that never asks its policy raises `Pundit::AuthorizationNotPerformedError`, and an index that isn't built from `policy_scope` raises too. They're in `ApplicationController`, so a new controller is covered without writing anything in it (`test/integration/authorization_guard_test.rb` proves it with a controller that forgets). The checks raise in every environment, not only development.
+
+**Which actions skip the check, and why?**
+Only the ones a person reaches before having an account to judge:
+
+| Action | Why it's public |
+| --- | --- |
+| `SessionsController#new`, `#create` | Signing in: the visitor has no account yet. |
+| `RegistrationsController#new`, `#create` | Signing up: the visitor has no account yet. |
+| `PasswordsController#new`, `#create`, `#edit`, `#update` | A forgotten password: the person can't sign in, and the link in the email is what identifies them. |
+
+Each skips with `skip_after_action :verify_authorized, only: [...]`, naming its actions. Signing out isn't on the list: it asks `SessionPolicy#destroy?`. The public price list isn't on it either: `ShopPolicy#services?` and `ServicePolicy#index?`/`#show?` answer yes to a visitor, so those pages still ask.
+
+**Which pages have no model, and what do they ask?**
+The shop's pages ask `ShopPolicy` (`authorize :shop`), the Lab 4 mockups ask `MockupPolicy`, and signing out asks `SessionPolicy`. These policies have no record; they check who is asking. The home, visiting and about pages and the mockups are open to every account.
+
+**Why is there a policy for payments, if the lab lists five resources?**
+Payments have pages (`index` and `show`), and every action must ask a policy. Payments are money, so the owner and the counter read them and a mechanic doesn't; a repair's page shows its payments only to them.
+
+**What does the base policy do?**
+`ApplicationPolicy` answers no to every action and its scope returns `none`. A policy opens only what it writes. The role checks (`owner?`, `counter?`, `mechanic?`, `signed_in?`) call the enum's methods on the account, so no role is written as a string in a policy. A visitor is `nil`, and every role check is false for it.
+
+**Who is the user a policy sees?**
+`pundit_user` returns `Current.user`, after resuming the session (public actions skip the authentication filter, so a signed-in owner on the public service list is still recognized and sees the New button). The controller hands it in; no policy reads the session, `params` or `Current`.
+
+**What is a mechanic's "own" repair?**
+One whose `mechanic_id` is the `employee_id` of the mechanic's account. `RepairPolicy#show?` and `RepairPolicy::Scope` say the same thing (`test/policies/repair_policy_test.rb` checks every account against every repair). A mechanic's account with no staff member gets `none`, not `where(mechanic_id: nil)`, which would have handed it every unassigned repair.
+
+**A mechanic opens another mechanic's repair by its id: 403 or 404?**
+`403`, for the page and for the edit form alike: `set_repair` finds the repair and authorizes it in the same line. A `404` would hide whether the repair exists, but the ids are sequential, so it would hide little.
+
+**Why can't the counter edit a handed-back repair?**
+A completed repair has been paid for and given back; changing it changes the shop's history. Only the owner corrects one. The counter can still move a repair to `completed` and fill in the hand-back time, which is the last edit it makes.
+
+**Why can a mechanic add intake photos but not remove them?**
+The lab gives mechanics the state, the diagnosis and adding photos. Removing a photo deletes the file, so it stays with whoever may change every field: the owner, and the counter while the repair isn't handed back (`RepairPolicy#remove_intake_photo?`).
+
+**How does the form know which fields to draw?**
+`RepairPolicy#permitted_attributes` returns the list for the person: every field for the owner and the counter, `status`, `diagnosis` and `intake_photos` for a mechanic. The controller passes it to `params.expect`, with no conditional on the role. The form draws a field only if `writes?(repair, :field)` (a helper that reads the same list) says so. A field sent anyway, from DevTools or a script, isn't in the list and is dropped like any unpermitted parameter, and the save goes on.
+
+**How do the views avoid checking roles?**
+They ask the policy: `policy(Customer).new?`, `policy(@repair).destroy?`, `policy(Repair).index?`. The navbar builds the Records menu from the models whose `index?` is true. `link_if_allowed` writes a bike's or customer's name as a link only if `show?` allows it, which is how a mechanic sees the bike and the customer of their repair without a link to a page they can't open.
+
+**What does a refused request look like?**
+`rescue_from Pundit::NotAuthorizedError` renders `errors/forbidden` with status `403`, in the application's layout. Every write is authorized before it saves or destroys, so a refused request writes nothing. A refused form submission (a Delete button, a forged edit) gets the same page: Turbo renders a `4xx` response in place of the form, as it does with a `422`. A visitor never gets there, because the authentication filter sends them to sign in first.
+
+**Why do the repairs index filters exist?**
+The lab asks that a mechanic filtering by state, or looking at the overdue repairs, sees only their own. The index now has both filters (`?state=` with a state's value, `?overdue=1`), and both are chained on the scope, so they narrow it.
+
+**What does the authorization cost?**
+Nothing in queries: the policies decide from the account (already loaded for the navbar) and the record on the page. The repairs index runs 16 queries for the owner, the counter and a mechanic, with or without filters, and the same with twice the repairs.
+
+**Brakeman**
+`bin/brakeman` runs with `--ensure-latest`, so it refused to run on 8.0.6 once 8.1.0 was out. The gem is updated to 8.1.0, which reports no warnings, so there is no ignore file.
 

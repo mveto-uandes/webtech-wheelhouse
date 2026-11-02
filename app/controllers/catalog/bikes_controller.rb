@@ -2,21 +2,22 @@ class Catalog::BikesController < ApplicationController
   before_action :set_bike, only: %i[show edit update destroy]
 
   def index
-    @bikes = Bike.includes(:customer).by_make_and_model
+    authorize Bike
+    @bikes = policy_scope(Bike).includes(:customer).by_make_and_model
   end
 
   def show
-    @repairs = @bike.repairs.includes(:mechanic, { taken_in_by: :employee }, bike: :customer)
+    @repairs = policy_scope(@bike.repairs).includes(:mechanic, { taken_in_by: :employee }, bike: :customer)
       .with_attached_intake_photos.with_rich_text_diagnosis_and_embeds.newest_first
   end
 
   # From a customer's page the owner comes already chosen.
   def new
-    @bike = Bike.new(customer: Customer.find_by(id: params[:customer_id]))
+    @bike = authorize Bike.new(customer: policy_scope(Customer).find_by(id: params[:customer_id]))
   end
 
   def create
-    @bike = Bike.new(bike_params)
+    @bike = authorize Bike.new(bike_params)
     if @bike.save
       redirect_to catalog_bike_path(@bike), notice: "Bike #{@bike.serial_number} was added."
     else
@@ -46,7 +47,7 @@ class Catalog::BikesController < ApplicationController
   private
 
   def set_bike
-    @bike = Bike.find(params[:id])
+    @bike = authorize Bike.find(params[:id])
   end
 
   def bike_params

@@ -15,7 +15,7 @@
   <% end %>
 </div>
 
-<% if authenticated? %>
+<% if policy(:mockup).repair_board? %>
   <p class="mt-4 text-muted">
     Staff: <%= link_to "view bikes currently in the shop", mockup_repair_board_path %>.
   </p>

@@ -1,9 +1,10 @@
 class Catalog::PaymentsController < ApplicationController
   def index
-    @payments = Payment.includes(:repair).newest_first
+    authorize Payment
+    @payments = policy_scope(Payment).includes(:repair).newest_first
   end
 
   def show
-    @payment = Payment.includes(:repair).find(params[:id])
+    @payment = authorize Payment.includes(:repair).find(params[:id])
   end
 end

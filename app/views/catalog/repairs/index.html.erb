@@ -2,11 +2,36 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0">Repairs</h1>
-  <%= link_to "Take in a repair", new_catalog_repair_path, class: "btn btn-primary" %>
+  <% if policy(Repair).new? %>
+    <%= link_to "Take in a repair", new_catalog_repair_path, class: "btn btn-primary" %>
+  <% end %>
 </div>
+
+<%# The filters narrow the repairs this person may read; they never add any. %>
+<%= form_with url: catalog_repairs_path, method: :get, class: "row g-2 align-items-end mb-3" do |f| %>
+  <div class="col-sm-4 col-md-3">
+    <%= f.label :state, "State", class: "form-label" %>
+    <%= f.select :state, Repair.statuses.keys.map { |state| [ state.humanize, state ] },
+          { include_blank: "Any state", selected: @state }, class: "form-select" %>
+  </div>
+  <div class="col-auto">
+    <div class="form-check mb-2">
+      <%= f.check_box :overdue, { checked: @overdue, class: "form-check-input" }, "1", nil %>
+      <%= f.label :overdue, "Overdue only", class: "form-check-label" %>
+    </div>
+  </div>
+  <div class="col-auto">
+    <%= f.submit "Filter", name: nil, class: "btn btn-outline-primary" %>
+    <% if @state || @overdue %>
+      <%= link_to "Show all", catalog_repairs_path, class: "btn btn-link" %>
+    <% end %>
+  </div>
+<% end %>
 
 <% if @repairs.any? %>
   <%= render "table", repairs: @repairs %>
+<% elsif @state || @overdue %>
+  <p class="text-muted">No repairs match these filters.</p>
 <% else %>
   <p class="text-muted">No repairs yet.</p>
 <% end %>

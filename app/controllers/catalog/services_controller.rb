@@ -4,19 +4,21 @@ class Catalog::ServicesController < ApplicationController
   before_action :set_service, only: %i[show edit update destroy]
 
   def index
-    @services = Service.by_name
+    authorize Service
+    @services = policy_scope(Service).by_name
   end
 
   def show
-    @repair_line_items = @service.repair_line_items.includes(:repair).newest_first
+    # Only the lines of repairs this person may read.
+    @repair_line_items = @service.repair_line_items.where(repair: policy_scope(Repair)).includes(:repair).newest_first
   end
 
   def new
-    @service = Service.new
+    @service = authorize Service.new
   end
 
   def create
-    @service = Service.new(service_params)
+    @service = authorize Service.new(service_params)
     if @service.save
       redirect_to catalog_service_path(@service), notice: "Service #{@service.name} was added to the price list."
     else
@@ -46,7 +48,7 @@ class Catalog::ServicesController < ApplicationController
   private
 
   def set_service
-    @service = Service.find(params[:id])
+    @service = authorize Service.find(params[:id])
   end
 
   def service_params

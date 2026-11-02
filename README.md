@@ -13,6 +13,7 @@ See `docs/` for the specification this app was built from:
 - [Wireframes](docs/wireframe.md)
 - [Design decisions](docs/decisions.md)
 - [The JSON API](docs/api.md)
+- [Who may do what](docs/permissions.md)
 
 The shop's price list is also shown on my personal page, which reads it from this app's API:
 [mveto-uandes.github.io/webtech-lab-01](https://mveto-uandes.github.io/webtech-lab-01/#prices).
@@ -77,14 +78,18 @@ password. A page you ask for before signing in opens right after you sign in.
 The seed creates these accounts. **They exist only in development**, in the database the seed
 fills on your computer; don't use these passwords anywhere else.
 
-| Email address | Password | Role | Staff member |
-| --- | --- | --- | --- |
-| `matias@wheelhouse.cl` | `matias-owner-2026` | owner | Matías Veto |
-| `camila@wheelhouse.cl` | `camila-counter-2026` | counter | Camila Soto |
-| `marco@wheelhouse.cl` | `marco-mechanic-2026` | mechanic | Marco Ibáñez |
-| `valentina@wheelhouse.cl` | `valentina-mechanic-2026` | mechanic | Valentina Rojas |
-| `diego@wheelhouse.cl` | `diego-mechanic-2026` | mechanic | Diego Fuentes |
-| `trainee@wheelhouse.cl` | `trainee-wheelhouse-2026` | mechanic (the default) | none |
+| Email address | Password | Role | Staff member | What it can do |
+| --- | --- | --- | --- | --- |
+| `matias@wheelhouse.cl` | `matias-owner-2026` | owner | Matías Veto | Everything: the price list, the staff, customers, bikes, every repair, deleting. |
+| `camila@wheelhouse.cl` | `camila-counter-2026` | counter | Camila Soto | Customers and bikes (no deleting), takes repairs in, edits every repair until it's handed back, reads payments. |
+| `marco@wheelhouse.cl` | `marco-mechanic-2026` | mechanic | Marco Ibáñez | Reads their own repairs and changes their state, diagnosis and photos until they're handed back. |
+| `valentina@wheelhouse.cl` | `valentina-mechanic-2026` | mechanic | Valentina Rojas | The same, on their own repairs. |
+| `diego@wheelhouse.cl` | `diego-mechanic-2026` | mechanic | Diego Fuentes | The same, on their own repairs. |
+| `trainee@wheelhouse.cl` | `trainee-wheelhouse-2026` | mechanic (the default) | none | A mechanic with no repairs of their own: reads the price list and the staff, and no repairs. |
+
+Every rule, action by action, is in [`docs/permissions.md`](docs/permissions.md). A page or
+button an account isn't allowed to use doesn't appear, and asking for it anyway answers a page
+that says so (status `403`).
 
 Running the seed again doesn't change these passwords, but a password changed through the
 "Forgot your password?" page stays changed until you reset the database.

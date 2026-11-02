@@ -19,8 +19,8 @@
     <%= repair.promised_on&.to_fs(:long) || "—" %>
     <% if overdue %><span class="badge text-bg-danger ms-1">Overdue</span><% end %>
   </td>
-  <td><%= link_to "#{repair.bike.make} #{repair.bike.model}", catalog_bike_path(repair.bike) %></td>
-  <td><%= link_to repair.bike.customer.name, catalog_customer_path(repair.bike.customer) %></td>
+  <td><%= link_if_allowed "#{repair.bike.make} #{repair.bike.model}", repair.bike, catalog_bike_path(repair.bike) %></td>
+  <td><%= link_if_allowed repair.bike.customer.name, repair.bike.customer, catalog_customer_path(repair.bike.customer) %></td>
   <td><%= repair.mechanic ? link_to(repair.mechanic.name, catalog_employee_path(repair.mechanic)) : "Unassigned" %></td>
   <td><%= taken_in_by(repair) %></td>
   <td class="text-nowrap small text-body-secondary"><%= diagnosis_excerpt(repair) %></td>

@@ -13,6 +13,6 @@ class Catalog::IntakePhotosController < ApplicationController
   private
 
   def set_repair
-    @repair = Repair.find(params[:repair_id])
+    @repair = authorize Repair.find(params[:repair_id]), :remove_intake_photo?
   end
 end

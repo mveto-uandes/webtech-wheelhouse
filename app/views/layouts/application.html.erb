@@ -23,11 +23,11 @@
   </head>
 
   <body>
-    <%# A visitor sees only the price list and the way in; every other page needs a session. %>
+    <%# A visitor sees only the price list and the way in. A signed-in account sees the pages its policies open. %>
     <% signed_in = authenticated? %>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container">
-        <%= link_to signed_in ? root_path : services_path, class: "navbar-brand d-flex align-items-center gap-2" do %>
+        <%= link_to policy(:shop).home? ? root_path : services_path, class: "navbar-brand d-flex align-items-center gap-2" do %>
           <%= image_tag "logo.png", alt: "Wheelhouse logo", height: 40 %>
           <span>Wheelhouse</span>
         <% end %>
@@ -36,7 +36,8 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
-            <% if signed_in %>
+            <% shop = policy(:shop) %>
+            <% if shop.home? %>
               <li class="nav-item">
                 <%= link_to "Home", root_path, class: "nav-link #{'active' if current_page?(root_path)}" %>
               </li>
@@ -44,24 +45,34 @@
             <li class="nav-item">
               <%= link_to "Services", services_path, class: "nav-link #{'active' if current_page?(services_path)}" %>
             </li>
-            <% if signed_in %>
+            <% if shop.visiting? %>
               <li class="nav-item">
                 <%= link_to "Visiting the Workshop", visiting_path, class: "nav-link #{'active' if current_page?(visiting_path)}" %>
               </li>
+            <% end %>
+            <% if shop.about? %>
               <li class="nav-item">
                 <%= link_to "About", about_path, class: "nav-link #{'active' if current_page?(about_path)}" %>
               </li>
+            <% end %>
+            <%# Records: only the indexes this account's policies open. A visitor gets none. %>
+            <% records = [
+                 [ "Customers", Customer, catalog_customers_path ],
+                 [ "Bikes", Bike, catalog_bikes_path ],
+                 [ "Staff", Employee, catalog_employees_path ],
+                 [ "Service Catalog", Service, catalog_services_path ],
+                 [ "Repairs", Repair, catalog_repairs_path ],
+                 [ "Payments", Payment, catalog_payments_path ]
+               ].select { |_label, model, _path| policy(model).index? } %>
+            <% if signed_in && records.any? %>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle <%= 'active' if request.path.start_with?('/catalog') %>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Records
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
-                  <li><%= link_to "Customers", catalog_customers_path, class: "dropdown-item #{'active' if request.path.start_with?(catalog_customers_path)}" %></li>
-                  <li><%= link_to "Bikes", catalog_bikes_path, class: "dropdown-item #{'active' if request.path.start_with?(catalog_bikes_path)}" %></li>
-                  <li><%= link_to "Staff", catalog_employees_path, class: "dropdown-item #{'active' if request.path.start_with?(catalog_employees_path)}" %></li>
-                  <li><%= link_to "Service Catalog", catalog_services_path, class: "dropdown-item #{'active' if request.path.start_with?(catalog_services_path)}" %></li>
-                  <li><%= link_to "Repairs", catalog_repairs_path, class: "dropdown-item #{'active' if request.path.start_with?(catalog_repairs_path)}" %></li>
-                  <li><%= link_to "Payments", catalog_payments_path, class: "dropdown-item #{'active' if request.path.start_with?(catalog_payments_path)}" %></li>
+                  <% records.each do |label, _model, path| %>
+                    <li><%= link_to label, path, class: "dropdown-item #{'active' if request.path.start_with?(path)}" %></li>
+                  <% end %>
                 </ul>
               </li>
             <% end %>

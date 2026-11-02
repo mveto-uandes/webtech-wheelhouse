@@ -6,25 +6,36 @@ class Catalog::RepairsController < ApplicationController
 
   before_action :set_repair, only: %i[show edit update destroy]
 
+  # Built on the policy scope, so the filters narrow what this person may read
+  # and never widen it: a mechanic filtering by state sees their own repairs.
   def index
-    @repairs = Repair.includes(:mechanic, { taken_in_by: :employee }, bike: :customer)
+    authorize Repair
+    @state = params[:state].presence_in(Repair.statuses.keys)
+    @overdue = params[:overdue] == "1"
+
+    repairs = policy_scope(Repair)
+    repairs = repairs.where(status: @state) if @state
+    repairs = repairs.overdue if @overdue
+    @repairs = repairs.includes(:mechanic, { taken_in_by: :employee }, bike: :customer)
       .with_attached_intake_photos.with_rich_text_diagnosis_and_embeds.by_promised_on
   end
 
   def show
     @intake_photos = @repair.intake_photos_attachments
     @repair_line_items = @repair.repair_line_items.includes(:service).oldest_first
-    @payments = @repair.payments.oldest_first
+    @payments = policy_scope(@repair.payments).oldest_first
   end
 
   # From a bike's page the bike comes already chosen.
   def new
-    @repair = Repair.new(bike: Bike.find_by(id: params[:bike_id]))
+    authorize Repair
+    @repair = Repair.new(bike: policy_scope(Bike).find_by(id: params[:bike_id]))
     add_blank_lines
   end
 
   # Whoever is signed in took the bike in; the form has no say in it.
   def create
+    authorize Repair
     @repair = Repair.new(repair_params)
     @repair.taken_in_by = Current.user
     if @repair.save
@@ -68,18 +79,17 @@ class Catalog::RepairsController < ApplicationController
   private
 
   def set_repair
-    @repair = Repair.includes(taken_in_by: :employee).with_attached_intake_photos.with_rich_text_diagnosis_and_embeds.find(params[:id])
+    @repair = authorize Repair.includes(taken_in_by: :employee).with_attached_intake_photos
+      .with_rich_text_diagnosis_and_embeds.find(params[:id])
   end
 
   def add_blank_lines
     BLANK_LINES.times { @repair.repair_line_items.build }
   end
 
+  # The policy says which fields this person writes (a mechanic: state,
+  # diagnosis and new photos). Anything else in the request is dropped.
   def repair_params
-    params.expect(repair: [
-      :bike_id, :mechanic_id, :status, :reported_problem, :diagnosis, :promised_on, :handed_back_at,
-      intake_photos: [],
-      repair_line_items_attributes: [ [ :id, :service_id, :charged_price, :_destroy ] ]
-    ])
+    params.expect(repair: policy(@repair || Repair).permitted_attributes)
   end
 end

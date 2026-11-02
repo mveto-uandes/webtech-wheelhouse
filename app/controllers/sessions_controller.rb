@@ -1,5 +1,7 @@
 class SessionsController < ApplicationController
   allow_unauthenticated_access only: %i[ new create ]
+  # Public: a visitor has no account for a policy to judge (docs/decisions.md).
+  skip_after_action :verify_authorized, only: %i[ new create ]
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_path, alert: "Try again later." }
 
   def new
@@ -19,6 +21,7 @@ class SessionsController < ApplicationController
   end
 
   def destroy
+    authorize :session
     terminate_session
     redirect_to new_session_path, notice: "You signed out.", status: :see_other
   end

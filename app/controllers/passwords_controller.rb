@@ -1,5 +1,7 @@
 class PasswordsController < ApplicationController
   allow_unauthenticated_access only: %i[ new create edit update ]
+  # Public: the person has forgotten how to sign in (docs/decisions.md).
+  skip_after_action :verify_authorized, only: %i[ new create edit update ]
   before_action :set_user_by_token, only: %i[ edit update ]
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_password_path, alert: "Try again later." }
 

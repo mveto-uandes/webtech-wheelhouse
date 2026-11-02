@@ -2,20 +2,21 @@ class Catalog::EmployeesController < ApplicationController
   before_action :set_employee, only: %i[show edit update destroy]
 
   def index
-    @employees = Employee.includes(:repairs).by_name
+    authorize Employee
+    @employees = policy_scope(Employee).includes(:repairs).by_name
   end
 
   def show
-    @repairs = @employee.repairs.includes(:mechanic, { taken_in_by: :employee }, bike: :customer)
+    @repairs = policy_scope(@employee.repairs).includes(:mechanic, { taken_in_by: :employee }, bike: :customer)
       .with_attached_intake_photos.with_rich_text_diagnosis_and_embeds.by_promised_on
   end
 
   def new
-    @employee = Employee.new
+    @employee = authorize Employee.new
   end
 
   def create
-    @employee = Employee.new(employee_params)
+    @employee = authorize Employee.new(employee_params)
     if @employee.save
       redirect_to catalog_employee_path(@employee), notice: "#{@employee.name} was added to the staff."
     else
@@ -45,7 +46,7 @@ class Catalog::EmployeesController < ApplicationController
   private
 
   def set_employee
-    @employee = Employee.find(params[:id])
+    @employee = authorize Employee.find(params[:id])
   end
 
   def employee_params
