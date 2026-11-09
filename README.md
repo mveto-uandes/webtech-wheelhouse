@@ -1,6 +1,6 @@
 # Wheelhouse
 
-**In production: <http://PRODUCTION_IP>** (plain HTTP, no domain name; see
+**In production: <http://137.184.104.39>** (plain HTTP, no domain name; see
 [Deploying](#deploying) and [`docs/deployment.md`](docs/deployment.md)).
 
 Wheelhouse is the site of a bike repair shop. The people of the workshop sign in with an email

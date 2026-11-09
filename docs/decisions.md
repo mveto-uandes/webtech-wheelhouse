@@ -222,7 +222,7 @@ Wheelhouse has no domain name, so no certificate can be issued for it: it answer
 | `config.action_mailer.default_url_options` | `{ host: APP_HOST, protocol: "http" }` | The links in the welcome and password emails. They point to `http://` and the IP, because nothing answers at `https://`. |
 | `config.hosts` | `[ APP_HOST ]`, `/up` left out | Not given up, added: a request whose `Host` isn't the droplet's IP gets a `403` (DNS rebinding). kamal-proxy checks `/up` from inside the server with another `Host`, so `/up` is excluded from the check. |
 
-`config/deploy.yml` matches them: `proxy: ssl: false`, and no `host:`, so kamal-proxy answers any request on port 80 without asking Let's Encrypt for a certificate. No response redirects to `https://`; `curl -I http://<IP>/session/new` shows a `200`, no `Location`, no `Strict-Transport-Security`, and a session cookie with `httponly; samesite=lax` and no `secure`.
+`config/deploy.yml` matches them: `proxy: ssl: false`, and no `host:`, so kamal-proxy answers any request on port 80 without asking Let's Encrypt for a certificate. No response redirects to `https://`; `curl -I http://137.184.104.39/session/new` shows a `200`, no `Location`, no `Strict-Transport-Security`, and a session cookie with `httponly; samesite=lax` and no `secure`.
 
 **What can an attacker on the counter's Wi-Fi read or do now?**
 Everything between the browser and the server travels in clear text, so anyone on the same network (an open café Wi-Fi, a shared router, a rogue access point) can:
@@ -246,7 +246,7 @@ Recent browsers warn before opening a site over `http://` ("Not secure" in the a
 The personal page on GitHub Pages is served over `https://`. A page loaded over `https://` may not fetch an `http://` URL (mixed content), and the browser blocks the request before it leaves, whatever the CORS headers say. Chrome's console shows:
 
 ```
-Mixed Content: The page at 'https://mveto-uandes.github.io/webtech-lab-01/' was loaded over HTTPS, but requested an insecure resource 'http://<IP>/api/v1/services'. This request has been blocked; the content must be served over HTTPS.
+Mixed Content: The page at 'https://mveto-uandes.github.io/webtech-lab-01/' was loaded over HTTPS, but requested an insecure resource 'http://137.184.104.39/api/v1/services'. This request has been blocked; the content must be served over HTTPS.
 ```
 
 So the published page keeps reading `http://localhost:3000/api/v1` (browsers treat `localhost` as secure), and the production API is read from the page served locally at `http://localhost:8000`, an origin the API already allows. With a domain and HTTPS, the published page could read production.
