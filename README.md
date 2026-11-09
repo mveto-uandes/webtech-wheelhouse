@@ -1,5 +1,8 @@
 # Wheelhouse
 
+**In production: <http://PRODUCTION_IP>** (plain HTTP, no domain name; see
+[Deploying](#deploying) and [`docs/deployment.md`](docs/deployment.md)).
+
 Wheelhouse is the site of a bike repair shop. The people of the workshop sign in with an email
 address and a password; anyone else sees only the price list. Signed in, the shop's pages show what
 it does, how to visit and who runs it, and its records pages (under **Records** in the navbar) keep
@@ -14,6 +17,7 @@ See `docs/` for the specification this app was built from:
 - [Design decisions](docs/decisions.md)
 - [The JSON API](docs/api.md)
 - [Who may do what](docs/permissions.md)
+- [How it is deployed](docs/deployment.md)
 
 The shop's price list is also shown on my personal page, which reads it from this app's API:
 [mveto-uandes.github.io/webtech-lab-01](https://mveto-uandes.github.io/webtech-lab-01/#prices).
@@ -76,7 +80,9 @@ Every page asks for a session except the price list (`/services`, and the servic
 password. A page you ask for before signing in opens right after you sign in.
 
 The seed creates these accounts. **They exist only in development**, in the database the seed
-fills on your computer; don't use these passwords anywhere else.
+fills on your computer; don't use these passwords anywhere else. **They don't sign in to
+production**: the same accounts exist there, but every password was changed after the seed was
+loaded, and the new ones aren't in this repository.
 
 | Email address | Password | Role | Staff member | What it can do |
 | --- | --- | --- | --- | --- |
@@ -197,3 +203,75 @@ allow it.
 In development, uploaded photos are stored on disk in `storage/`, at the root of the project. That
 folder is ignored by git: no uploaded file is ever committed. Deleting the database doesn't delete
 those files, so after a `db:drop` you can also empty `storage/` (keep `storage/.keep`).
+
+## Deploying
+
+The production app runs on a DigitalOcean droplet, deployed with [Kamal 2](https://kamal-deploy.org)
+from `config/deploy.yml`. How it's laid out (containers, where the data lives, the deploys and the
+rollback, every secret) is in [`docs/deployment.md`](docs/deployment.md). To deploy this repository
+to a droplet of your own:
+
+**Accounts you need**
+
+- **DigitalOcean**: an Ubuntu droplet with at least 2 GB of memory, created with your SSH key (so
+  `ssh root@<IP>` works without a password).
+- **Docker Hub**: an account and a personal access token with Read & Write access (Account
+  settings → Personal access tokens). Kamal pushes the image there and the droplet pulls it.
+- **An SMTP provider** with a free plan that accepts mail on a port DigitalOcean doesn't block
+  (it blocks 25, 465 and 587). This app uses Brevo on port 2525, with a verified sender address.
+
+**On your laptop**
+
+- Docker (the image is built there; Kamal is in the Gemfile, so `bundle install` brings it).
+- Your own production credentials, because `config/credentials/production.yml.enc` is encrypted
+  with a key that isn't in the repository. Delete that file and create yours (this also makes
+  `config/credentials/production.key`, which git ignores):
+
+  ```
+  rm config/credentials/production.yml.enc
+  EDITOR=nano bin/rails credentials:edit --environment production
+  ```
+
+  with this content (`bin/rails secret` prints a value for the first two):
+
+  ```
+  secret_key_base: <a long random value>
+  api_token: <another random value>
+  smtp:
+    address: smtp-relay.brevo.com
+    port: 2525
+    user_name: <the provider's SMTP login>
+    password: <the provider's SMTP key>
+    from: "Wheelhouse <a sender address the provider has verified>"
+  ```
+
+- Commit that file: Kamal builds the image from the last commit, not from your working tree.
+
+**Variables to export** (in the shell you deploy from; `.kamal/secrets` reads them and holds no
+values)
+
+```
+export WHEELHOUSE_HOST=203.0.113.10                # your droplet's IP
+export KAMAL_REGISTRY_USERNAME=your-docker-user    # Docker Hub user
+export KAMAL_REGISTRY_PASSWORD=dckr_pat_...        # the access token, not the account password
+export WHEELHOUSE_DB_PASSWORD=$(openssl rand -hex 24)   # keep it: every later deploy needs the same one
+```
+
+**The first command**
+
+```
+bin/kamal setup
+```
+
+It installs Docker on the droplet, starts PostgreSQL and the app, and the app's first start creates
+the four production databases and loads the seed. Then change every seeded password (the seed's
+passwords are in this README) from the production console, so the new passwords don't end up in
+a command line (Kamal writes every command it runs to an audit log on the server):
+
+```
+bin/kamal console
+User.find_by!(email_address: "matias@wheelhouse.cl").update!(password: "a-new-password")
+```
+
+Later versions go out with `bin/kamal deploy`, and `bin/kamal rollback <version>` puts a previous
+one back.

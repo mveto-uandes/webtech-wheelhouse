@@ -90,6 +90,9 @@ production:
     database: webtech_wheelhouse_production
     username: webtech_wheelhouse
     password: <%= ENV["WEBTECH_WHEELHOUSE_DATABASE_PASSWORD"] %>
+    # The PostgreSQL accessory, reached by its container name on Kamal's Docker
+    # network (config/deploy.yml). It publishes no port outside the droplet.
+    host: <%= ENV["DB_HOST"] %>
   cache:
     <<: *primary_production
     database: webtech_wheelhouse_production_cache

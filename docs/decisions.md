@@ -206,3 +206,59 @@ Nothing in queries: the policies decide from the account (already loaded for the
 **Brakeman**
 `bin/brakeman` runs with `--ensure-latest`, so it refused to run on 8.0.6 once 8.1.0 was out. The gem is updated to 8.1.0, which reports no warnings, so there is no ignore file.
 
+
+## Lab 13: open for business, over plain HTTP
+
+How Wheelhouse is deployed (the droplet, the containers, where each piece of state lives, the secrets) is in [`docs/deployment.md`](deployment.md). These are the decisions behind it.
+
+**What does plain HTTP change in `config/environments/production.rb`?**
+Wheelhouse has no domain name, so no certificate can be issued for it: it answers at `http://` and the droplet's IP, on port 80. These settings are written for that:
+
+| Setting | Value | What it protected (with HTTPS) |
+| --- | --- | --- |
+| `config.force_ssl` | `false` | Redirected every `http://` request to `https://` (`301`/`308`), sent `Strict-Transport-Security` so the browser never tried `http://` again, and marked every cookie `Secure`. Over plain HTTP, the redirect would lead to nothing, and a `Secure` session cookie is never sent back, so nobody could stay signed in. |
+| `config.assume_ssl` | `false` | Told Rails that a proxy in front of it had already terminated TLS, so `request.ssl?` is true and URLs are built with `https://`. kamal-proxy runs with `ssl: false`, so nothing terminated TLS, and saying otherwise would make Rails write `https://` links that don't answer. |
+| `config.ssl_options` (the `/up` exclusion) | removed | Only meaningful with `force_ssl`. |
+| `config.action_mailer.default_url_options` | `{ host: APP_HOST, protocol: "http" }` | The links in the welcome and password emails. They point to `http://` and the IP, because nothing answers at `https://`. |
+| `config.hosts` | `[ APP_HOST ]`, `/up` left out | Not given up, added: a request whose `Host` isn't the droplet's IP gets a `403` (DNS rebinding). kamal-proxy checks `/up` from inside the server with another `Host`, so `/up` is excluded from the check. |
+
+`config/deploy.yml` matches them: `proxy: ssl: false`, and no `host:`, so kamal-proxy answers any request on port 80 without asking Let's Encrypt for a certificate. No response redirects to `https://`; `curl -I http://<IP>/session/new` shows a `200`, no `Location`, no `Strict-Transport-Security`, and a session cookie with `httponly; samesite=lax` and no `secure`.
+
+**What can an attacker on the counter's Wi-Fi read or do now?**
+Everything between the browser and the server travels in clear text, so anyone on the same network (an open café Wi-Fi, a shared router, a rogue access point) can:
+
+- **Read the passwords** typed on the sign-in, sign-up and new-password forms, and the new password chosen after a reset.
+- **Steal the session.** The `session_id` cookie travels on every request; copying it into their own browser signs them in as that person (owner included) until the person signs out. `httponly` stops JavaScript from reading it, not the network.
+- **Read every record** on the pages: customers' names, phones and emails, bikes, repairs, prices, payments, the diagnosis and the intake photos.
+- **Use a password-reset link.** The token is in the URL, so the request that opens it is readable, and the link works until it's used.
+- **Read the API token.** The `Authorization: Bearer` header of an API call travels in clear text, and with it they can read every repair and add services.
+- **Change what the browser receives** (they sit in the middle): rewrite a page, inject a script or a fake sign-in form, or swap a photo. The CSRF token doesn't help here, because they read it from the page.
+
+What the app still does: passwords are stored as bcrypt digests, the session cookie is signed and `httponly`, every action is authorized (Lab 12), and the database publishes no port. Those protect the server, not the wire.
+
+**What would it take to get it back?**
+A domain name pointing at the droplet. Then `config/deploy.yml` gets `proxy: ssl: true` and `host: <domain>`, and kamal-proxy obtains a Let's Encrypt certificate on port 443 and redirects port 80 to it. `production.rb` turns on `assume_ssl` and `force_ssl` again (HSTS and `Secure` cookies come back with it), `APP_HOST` becomes the domain (for `config.hosts` and the email links, with `protocol: "https"`), and the CORS origins stay as they are. kamal-proxy's automatic certificates are issued for a host name, so without a domain there's no halfway step.
+
+**What does the browser say?**
+Recent browsers warn before opening a site over `http://` ("Not secure" in the address bar; with Chrome's "Always use secure connections" or Firefox's HTTPS-Only mode, a full-page warning first). Some try `https://` first and fall back to `http://` when nothing answers. That's the browser, not the app: the app never redirects.
+
+**Why can't the published personal page read the API in production?**
+The personal page on GitHub Pages is served over `https://`. A page loaded over `https://` may not fetch an `http://` URL (mixed content), and the browser blocks the request before it leaves, whatever the CORS headers say. Chrome's console shows:
+
+```
+Mixed Content: The page at 'https://mveto-uandes.github.io/webtech-lab-01/' was loaded over HTTPS, but requested an insecure resource 'http://<IP>/api/v1/services'. This request has been blocked; the content must be served over HTTPS.
+```
+
+So the published page keeps reading `http://localhost:3000/api/v1` (browsers treat `localhost` as secure), and the production API is read from the page served locally at `http://localhost:8000`, an origin the API already allows. With a domain and HTTPS, the published page could read production.
+
+**Why separate production credentials?**
+Production has its own `config/credentials/production.yml.enc`: its own `secret_key_base`, its own API token (the development one is in the README's examples), and the SMTP settings. Its key, `config/credentials/production.key`, is ignored by git and by Docker and reaches the server only as `RAILS_MASTER_KEY`. The development credentials don't change, and development still writes emails to `tmp/mails/`.
+
+**Why did production fail to boot before this lab?**
+`turbo-rails` skips eager loading its Action Cable channel only when `ActionCable` isn't defined at all. Action Cable's engine isn't loaded (Lab 4), but `solid_cable` defines part of the `ActionCable` module for its adapter, so in production, where code is eager loaded, Rails loaded `Turbo::StreamsChannel` and failed on `ActionCable::Channel`. `config/initializers/turbo.rb` applies turbo's own rule against the engine instead. Development and the tests load code lazily, which is why no lab before this one saw it.
+
+**Why was the Dockerfile changed?**
+The generated Dockerfile installed JavaScript packages with Yarn from a `yarn.lock`, but the project uses npm (`package-lock.json`). It now runs `npm ci`, and `assets:precompile` builds the stylesheet with `npm run build:css` (cssbundling-rails picks npm from the lock file).
+
+**Why are the seed's passwords changed in production?**
+The seed is loaded once, by the image's entrypoint (`db:prepare` on an empty database), and its passwords are in the README. Right after, every account's password was replaced from the console with a random one that isn't in the repository. The seed sets a password only when it creates the account, so running it again wouldn't put them back; it isn't run again anyway.

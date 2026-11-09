@@ -24,14 +24,22 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  # config.assume_ssl = true
+  # Wheelhouse has no domain name, so it has no certificate: it answers over plain
+  # HTTP at the IP of the droplet (APP_HOST, set in config/deploy.yml). Both SSL
+  # settings stay off on purpose. What that gives up is in docs/decisions.md, "Lab 13".
+  #
+  # assume_ssl: there is no SSL-terminating proxy in front of the app (kamal-proxy
+  # runs with ssl: false), so the app must not pretend requests came over HTTPS.
+  config.assume_ssl = false
 
-  # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  # config.force_ssl = true
+  # force_ssl would redirect every request to https:// (where nothing answers),
+  # send Strict-Transport-Security and mark the session cookie Secure, so the
+  # browser would never send it back over http://. Signing in would be impossible.
+  config.force_ssl = false
 
-  # Skip http-to-https redirect for the default health check endpoint.
-  # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
+  # The address the app is reached at, e.g. "203.0.113.10". Unset while the image
+  # is built and when production runs on a laptop.
+  app_host = ENV["APP_HOST"].presence
 
   # Log to STDOUT with the current request id as a default log tag.
   config.log_tags = [ :request_id ]
@@ -57,17 +65,26 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  # Links in emails open the app at its IP, over http:// (no https:// to send them to).
+  config.action_mailer.default_url_options = { host: app_host || "localhost", protocol: "http" }
 
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via bin/rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
+  # Emails go out through the SMTP provider. Everything about it lives in the
+  # production credentials (config/credentials/production.yml.enc, unlocked on the
+  # server by RAILS_MASTER_KEY), the password included. DigitalOcean blocks ports
+  # 25, 465 and 587 on new droplets, so the port is one the provider also accepts
+  # (2525). The sender is read from there too: ApplicationMailer uses smtp.from.
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.smtp_settings = {
+    address: Rails.application.credentials.dig(:smtp, :address),
+    port: Rails.application.credentials.dig(:smtp, :port),
+    user_name: Rails.application.credentials.dig(:smtp, :user_name),
+    password: Rails.application.credentials.dig(:smtp, :password),
+    authentication: :plain,
+    enable_starttls_auto: true,
+    open_timeout: 10,
+    read_timeout: 10
+  }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
@@ -79,12 +96,11 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
-  # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
-  #
-  # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  # Enable DNS rebinding protection and other `Host` header attacks: only requests
+  # addressed to the droplet's IP are answered. kamal-proxy checks /up from inside
+  # the server with another Host, so /up is left out of the check.
+  if app_host
+    config.hosts = [ app_host ]
+    config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  end
 end
